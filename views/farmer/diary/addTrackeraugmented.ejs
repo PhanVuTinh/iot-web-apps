@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+        <!-- Ajax Jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <!-- Jquery validation -->
+        <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" class="init">
+            var sock = "";
+            var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+            sock = socket;
+            var index = 0;
+            pagesize = 10;            
+            var selectpond_2 = ""; var selectstocking_2 = "";          
+            var ishompage_loaddata = false;
+            $(document).ready(function () {                
+                getPondInStockingPond('<%=conf%>','<%=token%>','<%=userId%>',function(data){                                     
+                    if(data != null){                   
+                         selectpond_2 += "<option value='"+data.pond_id+"'>" + data.pond_description+"</option>";
+                         $("#pond_id_2").html(selectpond_2);
+                         $("#pond_id_2").selectpicker('refresh');
+                    }
+                }); 
+                getStockingInStockingPond('<%=conf%>','<%=token%>','<%=userId%>',function(data){                    
+                    if(data != null){                      
+                        selectstocking_2 += "<option value='"+data.stocking_id+"'>" + "Vụ nuôi số: " + data.stocking_id+"</option>";
+                        $("#stocking_id_2").html(selectstocking_2);
+                        $("#stocking_id_2").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }                  
+                });                 
+            });
+        </script>
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()">
+    <div class="wrapper">
+        <!-- Chen tap tin sidebar.ejs va header.ejs -->
+        <% include ../partials/siderbar.ejs %>
+            <% include ../partials/header.ejs %>
+                <!-- Phan noi dung chinh cua trang -->
+                <div class="content-wrapper">
+                    <!-- Content Header (Page header) -->
+                    <section class="content-header">
+                        <h4>
+                            <b>THÊM NHẬT KÝ NUÔI TÔM</b>
+                        </h4>
+                        <ol class="breadcrumb">
+                            <li>
+                                <a href="/quantrac/nongdan">
+                                    <i class="fa fa-dashboard"></i> Nông dân</a>
+                            </li>
+                            <li>
+                                    <a href="/quantrac/nongdan/nhatki"> Nhật ký nuôi tôm</a>
+                            </li>
+                            <li><a href="/quantrac/nongdan/nhatki/themtdttruong"> Thêm theo dõi tăng trưởng</a></li>
+                        </ol>
+                    </section>
+                    <!-- Content body -->
+                    <section class="content">
+                        <!-- Khu vuc hien thi loi -->
+                        <div class="row">
+                            <div class="col-md-12" id="error">
+                            </div>
+                        </div>
+                        <!-- Modal cua notification -->
+                        <% include ../partials/notifiModal.ejs %>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3">
+                                    <div class="form-group">
+                                        <!-- <a title = "Quay lại trang trước" href="/"><button class="btn btn-primary">Quay lại</button></a>  -->
+                                        <!-- <a title ="" href="/quantrac/nongdan/nhatki/them"><button class="btn btn-primary ">Thêm Nhật Kí Nuôi</button></a> -->
+                                    </div>
+                                </div>
+                                <div class="col-md-offset-6 col-md-3 col-sm-offset-6 col-sm-3">
+                                    <div class="form-group">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-primary ">                                        
+                                        <div class="box-body">                                                                                 
+                                            <form action="/quantrac/nongdan/nhatki/themtangtruong" method="post" id="frmTracker">
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>BẢNG THEO DÕI TĂNG TRƯỞNG</h4>
+                                                    <br>
+                                                    <div class="form-group">
+                                                        <label for="pond_id_2" class="col-sm-1 col-form-label ">Ao nuôi:</label>
+                                                        <div class="col-sm-3">
+                                                            <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn ao" id="pond_id_2" name="pond_id_2">
+                                                            </select>
+                                                            <span id="errorpond_id_2" class="error"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="stocking_id_2" class="col-sm-1 col-form-label ">Vụ nuôi:</label>
+                                                        <div class="col-sm-3">
+                                                            <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn vụ" id="stocking_id_2" name="stocking_id_2">
+                                                            </select>
+                                                            <span id="errorstocking_id_2" class="error"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>                                  
+                                                <div class="form-group row">
+                                                    <label for="trackeraugmented_number" class="col-sm-2 col-form-label col-sm-offset-3">Lần kiểm tra:</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="trackeraugmented_number" name="trackeraugmented_number" placeholder="Lần kiểm tra">
+                                                        <span id="errortrackeraugmented_number" class="error"></span>
+                                                    </div>
+                                                </div>                                             
+                                                <div class="form-group row">                                                    
+                                                    <label for="trackeraugmented_date" class="col-sm-2 col-form-label col-sm-offset-3">Ngày bắt đầu:</label>
+                                                    <div class="col-sm-4">
+                                                        <!-- <input type="text" class="form-control" id="tentrainuoi" placeholder="Ngày bắt đầu:"> -->
+                                                        <div class='input-group date' id='process_day_6'>
+                                                            <input type='text' data-date-format='yyyy-mm-dd' class="form-control" id="trackeraugmented_date" name="trackeraugmented_date"/>
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                            <span id="errortrackeraugmented_date" class="error"></span>
+                                                        </div>
+                                                        <script type="text/javascript">
+                                                            $(function () {
+                                                                $('#process_day_6').datepicker({
+                                                                    format: 'yyyy/mm/dd',
+                                                                });
+                                                            });
+                                                        </script>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="trackeraugmented_age" class="col-sm-2 col-form-label col-sm-offset-3">Tuổi: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="trackeraugmented_age" name="trackeraugmented_age" placeholder="Tuổi">
+                                                        <span id="errortrackeraugmented_age" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="trackeraugmented_densityAvg" class="col-sm-2 col-form-label col-sm-offset-3">Mật độ trung bình (con/cm 2): </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="trackeraugmented_densityAvg" name="trackeraugmented_densityAvg" placeholder="Mật độ trung bình">
+                                                        <span id="errortrackeraugmented_densityAvg" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="trackeraugmented_weightAvg" class="col-sm-2 col-form-label col-sm-offset-3">Khối lượng trung bình (g/con ): </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="trackeraugmented_weightAvg" name="trackeraugmented_weightAvg" placeholder="Khối lượng trung bình">
+                                                        <span id="errortrackeraugmented_weightAvg" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="trackeraugmented_speedOfGrowth" class="col-sm-2 col-form-label col-sm-offset-3">Tốc độ tăng trưởng: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="trackeraugmented_speedOfGrowth" name="trackeraugmented_speedOfGrowth" placeholder="Tốc độ tăng trưởng">
+                                                        <span id="errortrackeraugmented_speedOfGrowth" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="tracker_augmented_survival" class="col-sm-2 col-form-label col-sm-offset-3">Tỉ lệ sống: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="tracker_augmented_survival" name="tracker_augmented_survival" placeholder="Tỉ lệ sống">
+                                                        <span id="errortracker_augmented_survival" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="trackeraugmented_biomass" class="col-sm-2 col-form-label col-sm-offset-3">Sinh khối: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="trackeraugmented_biomass" name="trackeraugmented_biomass" placeholder="Sinh khối">
+                                                        <span id="errortrackeraugmented_biomass" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="trackeraugmented_note" class="col-sm-2 col-form-label col-sm-offset-3">Ghi chú: </label>
+                                                    <div class="col-sm-4">                                                        
+                                                        <input type="text" class="form-control" id="trackeraugmented_note" name="trackeraugmented_note" placeholder="Ghi chú">
+                                                        <span id="errortrackeraugmented_note" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-4 col-sm-offset-5">
+                                                        <input type="submit" class="btn btn-primary" name="btnThemTanTruong" value="Thêm"/>
+                                                        <button type="reset" class="btn btn-primary col-sm-offset-1">Đặt lại</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <hr> 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </section>
+                    <!-- /.content // -->
+                </div>
+                <!-- /.content-wrapper -->
+                <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+                <% include ../partials/footer.ejs %>
+                    <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+
+    <!-- Chen tap tin script.ejs -->
+    <% include ../partials/script.ejs %>
+</body>
+
+</html>

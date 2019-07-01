@@ -1,0 +1,125 @@
+<div id="tab3" class="col-sm-12 tab-pane fade">
+    <div class="col-sm-12" style="margin-top: 50px">
+        <div class="form-group row">
+        <h4 class="text-center">
+            <b>THEO DÕI TĂNG TRƯỞNG</b></h4>
+        <br>
+        </div>
+        
+        <table class="table table-bordered table-hover" >
+            <thead>
+                <tr class="">
+                    <th class="text-center">Lần</th>
+                    <th class="text-center">Ngày kiểm tra</th>
+                    <th class="text-center">Tuổi</th>
+                    <th class="text-center">Mật độ trung bình</th>
+                    <th class="text-center">Khối lượng trung bình</th>
+                    <th class="text-center">Tốc độ tăng trưởng</th>
+                    <th class="text-center">Tỉ lệ sống</th>
+                    <th class="text-center">Sinh khối</th>
+                    <th class="text-center">Ghi chú</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="listTrackerAgumented_Edit"> </tbody>
+                
+        </table>
+       
+    </div>
+    </div>
+     <!-- Khai bao cac bien toan cuc tren trang -->
+     <script>
+        // var stocking_id = stocking_id;
+        // var pond_id = pond_id;
+        $('#menuManagerStocking').addClass('active');
+    </script>
+    <!-- Cac xu li tren trang -->
+    <script>
+        $(document).ready(function(){
+            $.validator.setDefaults({
+                errorClass:'help-block',
+                highlight:function(element){
+                    $(element).closest('.form-group').addClass('has-error');
+                },
+                unhighlight:function(element){
+                    $(element).closest('.form-group').removeClass('has-error');
+                }
+            });
+
+            $.validator.addMethod('checkQuantity',function(value,element){
+                return this.optional(element) || /^[1-9]{1}([0-9])*$/i.test(value);
+            },'Giá trị nhập vào không hợp lệ');
+
+            $.validator.addMethod('checkQuantityOther',function(value,element){
+                return this.optional(element) || /^(((0|[1-9]{1}[0-9]*)\.[0-9]{1})|([1-9]{1}))[0-9]*$/i.test(value);
+            },'Giá trị nhập vào không hợp lệ');
+
+            $('#frmTrackerAugmented').validate({
+                rules:{
+                    trackeraugmented_date:{
+                        required:true
+                    },
+                    trackeraugmented_age:{
+                        checkQuantity:true,
+                        required:true  
+                    },
+                    trackeraugmented_densityAvg:{
+                        checkQuantityOther:true,
+                        required:true  
+                    },
+                    trackeraugmented_weightAvg:{
+                        checkQuantityOther:true,
+                        required:true 
+                    },
+                    trackeraugmented_speedOfGrowth:{
+                        checkQuantityOther:true,
+                        required:true 
+                    },
+                    tracker_augmented_survival:{
+                        checkQuantityOther:true,
+                        required:true 
+                    },
+                    trackeraugmented_biomass:{
+                        checkQuantityOther:true,
+                        required:true  
+                    }
+                },
+                messages:{
+                    trackeraugmented_date:{
+                        required:"Chưa nhập ngày theo dõi"
+                    },
+                    trackeraugmented_age:{
+                        required:"Chưa nhập ngày tuổi hiện tại"  
+                    },
+                    trackeraugmented_densityAvg:{
+                        required:"Chưa nhập mật độ trung bình"
+                    },
+                    trackeraugmented_weightAvg:{
+                        required:"Chưa nhập khối lượng trung bình"  
+                    },
+                    trackeraugmented_speedOfGrowth:{
+                        required:"Chưa nhập tốc độ tăng trưởng"  
+                    },
+                    tracker_augmented_survival:{
+                        required:"Chưa nhập tỷ lệ sống"
+                    },
+                    trackeraugmented_biomass:{
+                        required:"Chưa nhập sinh khối"  
+                    }
+                },
+                errorPlacement: function($error, $element) {
+                    var name = $element.attr("name");
+                    $("#error" + name).append($error);
+                }
+            });
+
+            $('.selectpicker').on('change', function () {
+                if(!$(this).valid()){
+                    $('#error' + $(this).attr(name)).text('');
+                }
+            });
+            $('#pond_active').change(function(){
+                window.location.href = "/quantrac/nongdan/tangtruong/them?stocking_id="+ stocking_id +"&pond_id=" + parseInt($('#pond_active').val());
+            });
+        });
+    </script>

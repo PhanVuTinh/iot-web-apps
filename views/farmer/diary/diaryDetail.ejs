@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <!-- Ajax Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Jquery validation -->
+    <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" class="init">
+		var sock = "";
+		var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+        sock = socket;
+        var index = 0;
+        pagesize = 10;
+        var ishompage_loaddata = false;
+        $(document).ready(function(){
+         
+            // danscript
+            initDiaryDetail('<%=conf%>','<%=token%>','<%=userId%>','<%=pondId%>','<%=stockingId%>')
+          
+       
+        });
+    </script>
+    <style>
+        .text1 {
+            font-weight: normal;
+            font-size: 15;
+        }
+        .div-inline {
+            display:inline;
+        }
+    </style>
+  </head>
+  <body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()" >
+    <div class="wrapper">
+      <!-- Chen tap tin sidebar.ejs va header.ejs -->
+      <% include ../partials/siderbar.ejs %>
+      <% include ../partials/header.ejs %>
+      <!-- Phan noi dung chinh cua trang -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h4><b>NHẬT KÝ NUÔI TÔM</b></h4>
+            <ol class="breadcrumb">
+                <li><a href="/quantrac/nongdan"><i class="fa fa-dashboard"></i> Nông dân</a></li>
+                <li><a href="/quantrac/nongdan/dotnuoi/danhsach"> Nhật ký nuôi tôm</a></li>
+                <li class="active">Nhật ký</li>
+            </ol>
+        </section>
+        <!-- Content body -->
+        <section class="content">
+            <!-- Khu vuc hien thi loi -->
+            <div class="row">
+                <div class="col-md-12" id= "error">              
+                </div>
+            </div>
+            <!-- Modal cua notification -->
+            <% include ../partials/notifiModal.ejs %>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    <div class="form-group">
+                        <a title = "Quay lại trang trước" href="/quantrac/nongdan/nhatki/"><button class="btn btn-primary">Quay lại</button></a> 
+                        <!-- <a title ="" href="/quantrac/nongdan/nhatki/them"><button class="btn btn-primary ">Thêm Nhật Kí Nuôi</button></a> -->
+                    </div>
+                </div>
+                <div class="col-md-offset-6 col-md-3 col-sm-offset-6 col-sm-3">
+                    <div class="form-group">
+                      
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary ">
+                        
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12 " >
+                                    <div class="box-header  text-center">
+                                        <h1 class="box-title" ><b>SỔ</h1><br>
+                                        <h1 class="box-title" ><b>NHẬT KÝ NUÔI TÔM</h1>
+                                    </div>
+                                    <hr>
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-12 col-md-4 col-offset-2 ">
+                                            <strong class="pull-left col-sm-4 ">AO SỐ :</strong>
+                                            <div class="col-sm-8" id="pond_detail"></div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-4">
+                                            <strong class="pull-left col-sm-4 ">VỤ NUÔI :</strong>
+                                            <div class="col-sm-8" id="stocking_detail"></div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-4">
+                                            <strong class="pull-left col-sm-4 ">NĂM :</strong>
+                                            <div class="col-sm-8" id="diary_year_detail"></div>
+                                        </div>
+                                    </div>
+                                   
+                                  
+                                    <div class="col-sm-12" >
+                                        <hr>
+                                        <ul class="nav nav-tabs">
+                                            <li class="active"><a data-toggle="tab" href="#tab1">Thông Tin</a></li>
+                                            <li ><a data-toggle="tab"  href="#tab2">Chuẩn Bị Ao</a></li>
+                                            <li ><a data-toggle="tab" href="#tab3">Thả Giống</a></li>
+                                            <li ><a data-toggle="tab" href="#tab4">Theo Dõi Tăng Trưởng</a></li>
+                                            <li ><a data-toggle="tab" href="#tab5">Theo Dõi Chất Lượng Nước</a></li>
+                                            <!-- <li><a data-toggle="tab" href="#tab6">Thức Ăn & Phòng Trị Bệnh</a></li> -->
+                                            <li><a data-toggle="tab" href="#tab7">Tổng Kết Ao Nuôi</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="tab-content">
+                                        <div id="tab1" class="col-sm-12 tab-pane fade in active">
+                                            <div class="col-sm-12" style="margin-top: 50px">
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>THÔNG TIN CHUNG</b>
+                                                    </h4>
+                                                    <br>
+                                                    <strong class="col-sm-2 col-sm-offset-3">TÊN TRẠI NUÔI </strong>
+                                                    <div id="diary_farmname_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <strong class="col-sm-2 col-sm-offset-3">ĐỊA CHỈ </strong>
+                                                    <div id="diary_address_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <strong class="col-sm-2 col-sm-offset-3">SỐ ĐIỆN THOẠI</strong>
+                                                    <div id="diary_phone_detail" class="col-sm-4 text1"><%=userPhone%></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockingtype_detail" class="col-sm-2 col-form-label col-sm-offset-3">HÌNH THỨC NUÔI</label>
+                                                    <div id="stockingtype_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="species_detail" class="col-sm-2 col-form-label col-sm-offset-3">ĐỐI TƯỢNG NUÔI</label>
+                                                    <div id="species_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="diary_square" class="col-sm-2 col-form-label col-sm-offset-3">DIỆN TÍCH</label>
+                                                    <div id="diary_square_detail" class="col-sm-4"></div>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        <div id="tab2" class="col-sm-12 tab-pane fade">
+                                            <div class="col-sm-12" style="margin-top: 50px">
+                                                <div class="form-group row">
+                                                <h4 class="text-center">
+                                                    <b>CHUẨN BỊ AO</b></h4>
+                                                <br>
+                                                <label for="pondpreparation_dateStart" class="col-sm-2 col-form-label col-sm-offset-3">Ngày bắt đầu cải tạo </label>
+                                                <div id="pondpreparation_dateStart_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="landbg_id" class="col-sm-2 col-form-label col-sm-offset-3">Nền đáy </label>
+                                                    <div id="landbg_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="pondpreparation_soilPH" class="col-sm-2 col-form-label col-sm-offset-3">Độ PH đất </label>
+                                                    <div id="pondpreparation_soilPH_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="pondpreparation_capacityOfFan" class="col-sm-2 col-form-label col-sm-offset-3">CS máy quạt/máy</label>
+                                                    <div id="pondpreparation_capacityOfFan_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="pondpreparation_quantityOfFan" class="col-sm-2 col-form-label col-sm-offset-3">Số cánh quạt máy</label>
+                                                    <div id="pondpreparation_quantityOfFan_detail" class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="pondpreparation_quantityOfFan" class="col-sm-2 col-form-label col-sm-offset-1"></label>
+                                                    <div class="col-sm-8">
+                                                        <table class="table table-bordered table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="5" class="text-center">
+                                                                        VẬT TƯ CHUẨN BỊ AO
+                                                                    </th>
+                                                                </tr>
+                                                                <tr class="">
+                                                                    <th class="text-center" width="5%">#</th>
+                                                                    <th class="text-center">Loại</th>
+                                                                    <th class="text-center">Số lượng</th>
+                                                                    <th class="text-center">Ngày xử lý</th>
+                                                                    <th class="text-center">Ghi chú</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="listMaterialPondPreparation" >
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab3" class="col-sm-12 tab-pane fade">
+                                            <div class="col-sm-12" style="margin-top: 50px">
+                                                <div class="form-group row">
+                                                <h4 class="text-center">
+                                                    <b>THẢ GIỐNG</b></h4>
+                                                <br> 
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-12">
+                                                        <div class="col-sm-4 " style="display: inline">
+                                                            <strong for="seed_source_detail" class="pull-left col-sm-6" >Nguồn gốc giống</strong>
+                                                            <div id="seed_source_detail"  class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4 ">
+                                                            <label class="pull-left col-sm-6" for="seed_price_detail" >Giá giống</label>
+                                                            <div class="pull-right col-sm-6" id="seed_price_detail"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="seed_numberOfLot_detail" >Số lô</label>
+                                                            <div class="pull-right col-sm-6" id="seed_numberOfLot_detail"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stockpond_PCR_detail" >Tôm qua kiểm tra PCR</label>
+                                                            <div class="pull-right col-sm-6" id="stockpond_PCR_detail"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stockpond_PCRresult_detail" >Kết quả kiểm tra</label>
+                                                            <div class="pull-right col-sm-6" id="stockpond_PCRresult_detail"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="seed_size_detail" >Cở giống</label>
+                                                            <div class="pull-right col-sm-6" id="seed_size_detail" ></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stockpond_quantityStock_datail" >Số lượng thả</label>
+                                                            <div id="stockpond_quantityStock_datail" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stockpond_density_detail" >Mật độ thả</label>
+                                                            <div id="stockpond_density_detail" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="seedquality_detail" >Chất lượng</label>
+                                                            <div id="seedquality_detail" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stockpond_statusOfSeed_detail" >Xử lý con giống trước khi thả</label>
+                                                            <div id="stockpond_statusOfSeed_detail" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stockpond_method_detail" >Cách xử lý con giống</label>
+                                                            <div id="stockpond_method_detail" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                       
+                                                    </div>
+                                                    <br>
+                                                    <div class="col-sm-12">
+                                                        <!-- <label for="pondpreparation_quantityOfFan" class="col-sm-2 col-form-label col-sm-offset-1"></label> -->
+                                                        <!-- <div class="col-sm-10"> -->
+                                                        <table class="table table-bordered table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="7" class="text-center">
+                                                                        ĐIỀU KIỆN MÔI TRƯỜNG TRƯỚC KHI THẢ
+                                                                    </th>
+                                                                </tr>
+                                                                <tr class="">
+                                                                    <th class="text-center">Độ sâu</th>
+                                                                    <th class="text-center">Độ trong </th>
+                                                                    <th class="text-center">Độ mặn</th>
+                                                                    <th class="text-center">Oxy Hoà tan (DO)</th>
+                                                                    <th class="text-center">pH</th>
+                                                                    <th class="text-center">Nhiệt độ không khí</th>
+                                                                    <th class="text-center">Nhiệt độ nước</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody >
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td class="text-center" id="stockpond_depth_detail"></td>
+                                                                    <td class="text-center" id="stockpond_clarity_detail"></td>
+                                                                    <td class="text-center" id="stockpond_salinity_detail"></td>
+                                                                    <td class="text-center" id="stockpond_DO_detail"></td>
+                                                                    <td class="text-center" id="stockpond_PHwater_detail"></td>
+                                                                    <td class="text-center" id="stockpond_tempAir_detail"></td>
+                                                                    <td class="text-center" id="stockpond_tempWater_detail"></td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                        <!-- </div> -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab4" class="col-sm-12 tab-pane fade">
+                                            <div class="col-sm-12" style="margin-top: 50px">
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>THEO DÕI TĂNG TRƯỞNG</b>
+                                                    </h4>
+                                                    <br>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="pondpreparation_quantityOfFan" class="col-sm-2 col-form-label col-sm-offset-1"></label>
+                                                    <div class="col-sm-12">
+                                                        <table class="table table-bordered table-hover" >
+                                                            <thead>
+                                                                <tr class="">
+                                                                    <th class="text-center">Lần</th>
+                                                                    <th class="text-center">Ngày kiểm tra</th>
+                                                                    <th class="text-center">Tuổi</th>
+                                                                    <th class="text-center">Mật độ trung bình</th>
+                                                                    <th class="text-center">Khối lượng trung bình</th>
+                                                                    <th class="text-center">Tốc độ tăng trưởng</th>
+                                                                    <th class="text-center">Tỉ lệ sống</th>
+                                                                    <th class="text-center">Sinh khối</th>
+                                                                    <th class="text-center">Ghi chú</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="listTrackerAgumented_detail"> </tbody>
+                                                                
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab5" class="col-sm-12 tab-pane fade">
+                                            <div class="col-sm-12" style="margin-top: 50px">
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>THEO DÕI CHẤT LƯỢNG NƯỚC</b>
+                                                    </h4>
+                                                    <br>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="pondpreparation_quantityOfFan" class="col-sm-2 col-form-label col-sm-offset-1"></label>
+                                                    <div class="col-sm-12">
+                                                        <table class="table table-bordered table-hover" >
+                                                            <thead>
+                                                                <tr class="">
+                                                                    <th class="text-center">Ngày kiểm tra</th>
+                                                                    <th class="text-center">Thông số</th>
+                                                                    <th class="text-center">Giá trị đo</th>
+                                                                    <th class="text-center">Đơn vị</th>
+                                                                    <!-- <th class="text-center">NH3</th>
+                                                                    <th class="text-center">NO3</th>
+                                                                    <th class="text-center">Độ mặn</th> -->
+                                                                
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="listTopDataTrackerWater">
+                                                            </tbody>
+                                                                
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab6" class="col-sm-12 tab-pane fade">
+                                            <div class="col-sm-12" style="margin-top: 50px">
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>THEO DÕI THỨC ĂN VÀ PHÒNG TRỊ BỆNH</b>
+                                                    </h4>
+                                                    <br>
+                                                </div>
+                                                 <div class="form-group row">
+                                                     <div class="col-sm-12">
+                                                        <div class="col-sm-6">
+                                                            <strong class="col-sm-6 col-sm-offset-4" style="margin-bottom: 10px">QUẢN LÝ THỨC ĂN</strong>
+                                                            <table class="table table-bordered table-hover">
+                                                                <thead>
+                                                                    <tr class="">
+                                                                        <th>Mã lô thuốc</th>
+                                                                        <th>Lần</th>
+                                                                        <th>Lượng thức ăn/ngày</th>
+                                                                        <th>Tổng Lượng thức ăn tích luỹ</th>
+                                                                    
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody  >
+                                                                </tbody>
+                                                                    
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <strong class="col-sm-6 col-sm-offset-4" style="margin-bottom: 10px">SỬ DỤNG THUỐC</strong>
+                                                            <table class="table table-bordered table-hover">
+                                                                <thead>
+                                                                    <tr class="">
+                                                                        <th>Loại</th>
+                                                                        <th>Liều lượng</th>
+                                                                        <th>Thời gian đào thải thuốc</th>
+                                                                        <th>Ghi chú</th>
+                                                                    
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody  >
+                                                                </tbody>
+                                                                    
+                                                            </table>
+                                                        </div>
+                                                     </div>
+                                                  
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        <div id="tab7" class="col-sm-12 tab-pane fade">
+                                            <div class="col-sm-12" style="margin-top: 50px">
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>TỔNG KẾT HIỆU QUẢ AO NUÔI</b>
+                                                    </h4>
+                                                    <br>
+                                                    
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="pondpreparation_quantityOfFan" class="col-sm-2 col-form-label col-sm-offset-1"></label>
+                                                    <div class="col-sm-12">
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="pondSquare_datail" >Diện tích ao :</label>
+                                                            <div id="pondSquare_report" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stocking_quantity_report" >Lượng thả giống :</label>
+                                                            <div id="stocking_quantity_report" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="stocking_date_report" >Ngày thả giống :</label>
+                                                            <div id="stocking_date_report" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                    </div>
+                                                 
+                                                    <div class="col-sm-12">
+                                                        <div class="col-sm-4">
+                                                                <label class="pull-left col-sm-6" for="total_stockingdate_report" >Tổng số ngày nuôi :</label>
+                                                                <div id="total_stockingdate_report" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                                <label class="pull-left col-sm-6" for="harvest_date_last" >Ngày thu hoạch :</label>
+                                                                <div id="harvest_date_last" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                       
+                                                        <div class="col-sm-4">
+                                                                <label class="pull-left col-sm-6" for="harvest_weight_report" >Sản lượng thu hoạch :</label>
+                                                                <div id="harvest_weight_report" class="pull-right col-sm-6 text1"></div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- <div class="col-sm-12"> -->
+                                                        <!-- <div class="col-sm-4">
+                                                                <label class="pull-left col-sm-6" for="total_materialtypefood_report" >Lượng thức ăn toàn vụ :</label>
+                                                                <div id="total_materialtypefood_report" class="pull-right col-sm-6"></div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="pull-left col-sm-6" for="numberFCR_report" >Hệ Số FCR</label>
+                                                            <div id="numberFCR_report" class="pull-right col-sm-6"></div> -->
+                                                            <!-- <math mode="display" xmlns="http://www.w3.org/1998/Math/MathML">
+                                                                <mrow>
+                                                                   <mi></mi>
+                                                                   <mo>=</mo>
+                                                                   <mfrac>
+                                                                      <mrow>
+                                                                         <mi>SL thu hoạch</mi>
+                                                                      </mrow>
+                                                                      <mrow>
+                                                                         <mi>Lượng thức ăn toàn vụ</mi>
+                                                                      </mrow>
+                                                                   </mfrac>
+                                                                </mrow>
+                                                             </math> -->
+                                                        <!-- </div> -->
+                                                        <!-- <div class="col-sm-4">
+                                                         
+                                                            <label class="pull-left col-sm-6"  >Hoá chất sử dụng trong ao :</label>
+                                                            <div class="pull-right col-sm-6 text1">Không sunfit</div>
+                                                        </div>
+                                                       
+                                                    </div> -->
+                                                    <br>
+                                                    <div class="col-sm-12" style="margin-top: 50px">
+                                                        <table class="table table-bordered table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="6" class="text-center align-center">BẢNG TỔNG KẾT SẢN LƯỢNG THU HOẠCH VÀ TỔNG DOANH THU</th>
+                                                                </tr>
+                                                                <tr >
+                                                                    <th class="text-center">Đợt Thu Hoạch</th>
+                                                                    <th class="text-center">Ngày thu hoạch</th>
+                                                                    <th class="text-center">Kích cở tôm</th>
+                                                                    <th class="text-center">Tổng trọng Lượng</th>
+                                                                    <!-- <th class="text-center">Số lượng tôm thu</th> -->
+                                                                    <th class="text-center">Giá bán</th>
+                                                                    <th class="text-center">Doanh thu</th>
+                                                                
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="listHarvestDetailForReport" >
+                                                               
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td colspan="2" class="text-center">Tổng</td>
+                                                                    <td id="total_weight"> </td>
+                                                                    <td></td>
+                                                                    <td id="total_all"> </td>
+                                                                </tr>
+                                                            </tfoot>
+                                                                
+                                                        </table>
+                                                        <br>
+                                                        <table class="table table-bordered table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="8" class="text-center align-center">BẢNG HOẠCH TOÁN SAU THU HOẠCH</th>
+                                                                </tr>
+                                                                <tr class="">
+                                                                  
+                                                                    <th class="text-center">Chi phí</th>
+                                                                    <th class="text-center">Số lượng</th>
+                                                                    <th class="text-center">Thành tiền</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="listOtherCostForReport" >
+                                                            
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td colspan="2" class="text-center">Doanh thu : <p id="total_all_report"></p></td>
+                                                                    <td colspan="2" class="text-center">Tổng chi phí : <p id="total_cost_report"></p></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td colspan="4" class="text-center">Lợi nhuận : <p  id="total_earn_report"></p></td>
+                                                                   
+                                                                </tr>
+                                                            </tfoot>
+                                                                
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                   
+
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>   
+      <!-- /.content // -->
+      </div>
+      <!-- /.content-wrapper -->
+      <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+      <% include ../partials/footer.ejs %>
+      <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Chen tap tin script.ejs -->
+    <% include ../partials/script.ejs %>
+  </body>
+</html>
+

@@ -1,0 +1,71 @@
+<!-- Cac ham load du lieu duoc su dung -->
+
+<script>
+
+    getUserFunctionGroup('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>',function(datafunctiongroup){
+        var main_navigation ='<li class="header">BẢNG ĐIỀU KHIỂN</li>'
+        + '<li class="treeview" id="home-tab">'
+        + '<a href="/quantrac">'
+        + '<i class="fa fa-home"></i> <span>Trang chủ</span>'
+        + '</a>'
+        + '</li>';
+
+        var forum ='<li class="treeview" id ="forum">'
+        + '<a href="/quantrac/chung/diendan">'
+        +'<i class="fa fa-link" aria-hidden="true"></i> <span>Forum</span>'
+        +'</a></li>';
+
+        var function_group="";
+        datafunctiongroup.forEach(function (datafg){
+            if(datafg.role == "admin" || datafg.role== "manager"){
+                if(datafg.is_active){
+                    if(datafg.function_group_tag == 'function'){
+                        function_group +="<li class='treeview'>"
+                        + "<a href='" + datafg.href + "'> <i class='fa fa-circle-o' aria-hidden='true'></i>"
+                        + "<span>" + datafg.description + "</span> </a> </li>";
+                    }
+                    else {
+                        function_group += "<li class='treeview'>"
+                        +"<a href='" + datafg.href + "'>"
+                        +"<i class='fa fa-pie-chart'></i>"
+                        +"<span>" + datafg.description + "</span>"
+                        +"<span class='pull-right-container'>"
+                        +"<i class='fa fa-angle-left pull-right'></i>"
+                        +"</span>"
+                        +"</a>"
+                        +"<ul class='treeview-menu' id='" + datafg.function_group_tag + "'>";
+                        function_group += "</ul>"
+                        +"</li>";
+                        getUserFunction('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>',datafg.function_group_tag, function(datafunction){
+                            var function_html = "";
+                            datafunction.forEach(function (dataf){
+                                if(dataf.isactive ){
+                                    function_html += "<li>"
+                                    + "<a  href='" + dataf.function_href + "'><i class='fa fa-circle-o'></i>"+ dataf.description
+                                    + "</a></li>";
+                                }
+                            });
+                        $("#"+datafg.function_group_tag).html(function_html);
+                        });
+                    }
+                }
+                var html = main_navigation + function_group + forum;
+                $('#mainmenu').html(html);
+            }
+            else if(datafg.is_active){
+                getUserFunction('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>',datafg.function_group_tag, function(datafunction){
+                    var function_html = "";
+                    datafunction.forEach(function (dataf){
+                        if(dataf.isactive ){
+                            function_html += "<li id='" + dataf.function_name + "'>"
+                            + "<a  href='" + dataf.function_href + "'><i class='fa fa-circle-o'></i>"+ dataf.description
+                            + "</a></li>";
+                        }
+                    });
+                    $("#mainmenu").html(main_navigation + function_html + forum);
+                });
+            }
+        });
+    });
+    
+</script>

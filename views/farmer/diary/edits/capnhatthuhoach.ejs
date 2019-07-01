@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ./../../partials/head.ejs %>
+    <!-- Ajax Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Jquery validation -->
+    <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" class="init">
+		var sock = "";
+		var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+        sock = socket;
+        var index = 0;
+        pagesize = 10;
+        var ishompage_loaddata = false;
+        $(document).ready(function(){
+            renderEditHarvestDetailById('<%=conf%>','<%=token%>','<%=userId%>','<%=harvedetaNumber%>','<%=harvestId%>','<%=prodtypeId%>');
+       
+        });
+    </script>
+
+  </head>
+  <body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()" >
+    <div class="wrapper">
+      <!-- Chen tap tin sidebar.ejs va header.ejs -->
+      <% include ./../../partials/siderbar.ejs %>
+      <% include ./../../partials/header.ejs %>
+      <!-- Phan noi dung chinh cua trang -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+        <h4><b>CẬP NHẬT NHẬT KÝ NUÔI TÔM</b></h4>
+          <ol class="breadcrumb">
+            <li><a href="/quantrac/nongdan"><i class="fa fa-dashboard"></i> Nông dân</a></li>
+            <li><a href="/quantrac/nongdan/dotnuoi/danhsach"> Nhật ký nuôi tôm</a></li>
+            <li class="active">Nhật ký</li>
+          </ol>
+        
+        </section>
+        <!-- Content body -->
+        <section class="content">
+            <!-- Khu vuc hien thi loi -->
+            <div class="row">
+                <div class="col-md-12" id= "error">              
+                </div>
+            </div>
+            <!-- Modal cua notification -->
+            <% include ./../../partials/notifiModal.ejs %>
+            <div class="row">
+                <div class="col-md-5 col-sm-12">
+                    <div class="form-group">
+                        <a title = "Quay lại trang trước" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Quay lại</button></a> 
+                    </div>
+                </div>
+              
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary ">
+                        <div class="box-header with-border text-center">
+                            <h3 class="box-title" ><b>CẬP NHẬT THU HOẠCH</h3><br>
+                            <!-- <h3 class="box-title" ><b></h3> -->
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12" >
+                                    <form name = "frmUpdateHavestDetail" id = "frmUpdateHavestDetail" action="/quantrac/nongdan/nhatki/capnhathuhoach" method="post">
+                                        <div class="row">
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="form-group">
+                                                    <label class="control-label" for="harvest_harvestDate">Ngày thu hoạch:</label>
+                                                    <div class="input-group">
+                                                        <div class='input-group date col-md-12' id='datetimepicker5'>
+                                                            <input type='text' class="form-control" id="harvest_harvestDate" name="harvest_harvestDate" />
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                        </div>
+                                                        <script type="text/javascript">
+                                                            $(function () {
+                                                                $('#datetimepicker5').datetimepicker({
+                                                                    format: 'YYYY-MM-DD',
+                                                                    locale: 'vi',
+                                                                    useCurrent: true,
+                                                                    calendarWeeks: true,
+                                                                    sideBySide: true,
+                                                                   
+                                                                });
+                                                            });
+                                                        </script>   
+                                                        <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                    </div>
+                                                    <span id="errorharvest_harvestDate"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="form-group">
+                                                    <label class="control-label" for="prodtype_id">Loại sản phẩm:</label>
+                                                    <div class="input-group">
+                                                        <select data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" id="prodtype_id2" name = "prodtype_id" class="form-control selectpicker">
+                                                            <option value="0">Chọn loại sản phẩm</option>
+                                                        </select>  
+                                                        <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                    </div>
+                                                    <span id="errorprodtype_id"></span>  
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="form-group">
+                                                    <label class="control-label" for="harvedeta_weight">Số lượng:</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id = "harvedeta_weight" name="harvedeta_weight" placeholder="Nhập số lượng thu hoạch" />
+                                                        <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                    </div>
+                                                    <span id="errorharvedeta_weight"></span>  
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="form-group">
+                                                    <label class="control-label" for="unit_id">Đơn vị tính:</label>
+                                                    <div class="input-group">
+                                                        <select data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" id="unit_id3" name = "unit_id" class="form-control selectpicker">
+                                                            <option value="0">Chọn đơn vị tính</option>
+                                                        </select>  
+                                                        <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                    </div>
+                                                    <span id="errorunit_id"></span>  
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="form-group">
+                                                    <label class="control-label" for="harvedeta_price">Đơn giá (VNĐ):</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id = "harvedeta_price" name="harvedeta_price" placeholder="Nhập đơn giá" />
+                                                        <input type="text" style="display: none;" class="form-control" id="harvest_id" name="harvest_id"/>
+                                                        <input type="text" style="display: none;" class="form-control" id="user_id" name="user_id"/>
+                                                        <input type="text" style="display: none;" class="form-control" id="stocking_id" name="stocking_id"/> 
+                                                        <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>                                                        
+                                                    </div>
+                                                    <span id="errorharvedeta_price"></span>  
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-sm-4">
+                                                <label class="control-label" for="harvedeta_note">Ghi chú:</label>
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" id = "harvedeta_note" name="harvedeta_note" placeholder="Nhập ghi chú" />
+                                                    <input type="text" style="display: none;" class="form-control" id="harvedeta_number" name="harvedeta_number"/>
+                                                    <input type="text" style="display: none;" class="form-control" id="pond_id" name="pond_id"/>
+                                                    <input type="text" style="display: none;" class="form-control" id="prodtype_id_goc" name="prodtype_id_goc"/>
+                                                    <span id="errorharvedeta_note"></span>                                                  
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-offset-5 col-md-7 col-sm-offset-5 col-sm-7">
+                                                <!-- <input title = "Thêm chi tiết cho đợt thu hoạch" type="button" id ="btnThemHavestDetail" name="btnThemHavestDetail" value="Thêm" class="btn btn-primary" class="form-control" onclick="addHavestDetail()"/>&nbsp;&nbsp;&nbsp; -->
+                                                <!-- <input title="Lưu đợt thu hoạch" type="button" id ="btnThemHavest" name="btnThemHavest" value="Lưu thu hoạch" class="btn btn-primary" class="form-control" onclick="saveAddHavest()" /> -->
+                                                <input title = "Cập nhật thu hoạch" type="submit" id ="btnThemHavestDetail" name="btnThemHavestDetail" value="Cập nhật" class="btn btn-primary" class="form-control" />&nbsp;&nbsp;&nbsp;
+                                                <span style="color:red;font-weight:bold;">&nbsp;(*)</span> là bắt buộc
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+        </section>   
+      <!-- /.content // -->
+      </div>
+      <!-- /.content-wrapper -->
+      <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+      <% include ./../../partials/footer.ejs %>
+      <% include ./../../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+  
+    <!-- Chen tap tin script.ejs -->
+    <% include ./../../partials/script.ejs %>
+  </body>
+</html>
+

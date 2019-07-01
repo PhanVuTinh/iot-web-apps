@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <!-- Ajax Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Jquery validation -->
+    <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" class="init">
+		var sock = "";
+		var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+        sock = socket;
+        var index = 0;
+        pagesize = 10;
+        var ishompage_loaddata = false;
+        $(document).ready(function(){
+         
+            // danscript
+            initialEditDetailDiary('<%=conf%>','<%=token%>','<%=userId%>','<%=pondId%>','<%=stockingId%>');
+       
+        });
+    </script>
+    <style>
+        .text1 {
+            font-weight: normal;
+            font-size: 15;
+        }
+        .div-inline {
+            display:inline;
+        }
+    </style>
+  </head>
+  <body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()" >
+    <div class="wrapper">
+      <!-- Chen tap tin sidebar.ejs va header.ejs -->
+      <% include ../partials/siderbar.ejs %>
+      <% include ../partials/header.ejs %>
+      <!-- Phan noi dung chinh cua trang -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h4><b>NHẬT KÝ NUÔI TÔM</b></h4>
+            <ol class="breadcrumb">
+                <li><a href="/quantrac/nongdan"><i class="fa fa-dashboard"></i> Nông dân</a></li>
+                <li><a href="/quantrac/nongdan/dotnuoi/danhsach"> Nhật ký nuôi tôm</a></li>
+                <li class="active">Nhật ký</li>
+            </ol>
+        </section>
+        <!-- Content body -->
+        <section class="content">
+            <!-- Khu vuc hien thi loi -->
+            <div class="row">
+                <div class="col-md-12" id= "error">              
+                </div>
+            </div>
+            <!-- Modal cua notification -->
+            <% include ../partials/notifiModal.ejs %>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    <div class="form-group">
+                        <a title = "Quay lại trang trước" href="/quantrac/nongdan/nhatki/"><button class="btn btn-primary">Quay lại</button></a> 
+                        <!-- <a title ="" href="/quantrac/nongdan/nhatki/them"><button class="btn btn-primary ">Thêm Nhật Kí Nuôi</button></a> -->
+                    </div>
+                </div>
+                <div class="col-md-offset-6 col-md-3 col-sm-offset-6 col-sm-3">
+                    <div class="form-group">
+                      
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary ">
+                        
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12 " >
+                                    <div class="box-header  text-center">
+                                        <h1 class="box-title" ><b>CẬP NHẬT</h1><br>
+                                        <h1 class="box-title" ><b>SỔ NHẬT KÝ NUÔI TÔM</h1>
+                                    </div>
+                                    <hr>
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-12 col-md-4 col-offset-2 ">
+                                            <strong class="pull-left col-sm-4 ">AO SỐ :</strong>
+                                            <div class="col-sm-8" id="pond_id3"></div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-4">
+                                            <strong class="pull-left col-sm-4 ">VỤ NUÔI :</strong>
+                                            <div class="col-sm-8" id="stocking_id3"></div>
+                                        </div>
+                                      
+                                    </div>
+                                   
+                                  
+                                    <div class="col-sm-12" >
+                                        <hr>
+                                        <ul class="nav nav-tabs">
+                                            <!-- <li class="active"><a data-toggle="tab" href="#tab1">Thông Tin Sổ Nuôi</a></li> -->
+                                            <li ><a data-toggle="tab"  href="#tab7">Vật liệu Chuẩn Bị Ao</a></li>
+                                            <li ><a data-toggle="tab"  href="#tab1">Chuẩn Bị Ao</a></li>
+                                            <li ><a data-toggle="tab" href="#tab2">Thả Giống</a></li>
+                                            <li ><a data-toggle="tab" href="#tab3">Theo Dõi Tăng Trưởng</a></li>
+                                            <!-- <li ><a data-toggle="tab" href="#tab4">Theo Dõi Chất lượng nước</a></li> -->
+                                            <!-- <li ><a data-toggle="tab" href="#tab5">Hoá đơn</a></li> -->
+                                            <li ><a data-toggle="tab" href="#tab6">Thu hoạch</a></li>
+                                          
+                                            <!-- <li ><a data-toggle="tab" href="#tab5">Theo Dõi Chất Lượng Nước</a></li> -->
+                                            <!-- <li><a data-toggle="tab" href="#tab6">Thức Ăn & Phòng Trị Bệnh</a></li> -->
+                                            <!-- <li><a data-toggle="tab" href="#tab7">Tổng Kết Hiệu Quả Ao Nuôi</a></li> -->
+                                        </ul>
+                                    </div>
+                                    <div class="tab-content">
+                                            <% include ./adds/chuanbiao.ejs %>
+                                            <% include ./adds/thagiong.ejs %>
+                                            <% include ./adds/tangtruong.ejs %>
+                                            <% include ./adds/thuhoach.ejs %>
+                                            <% include ./adds/vatlieuchuanbiao.ejs %>
+                                           
+
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>   
+      <!-- /.content // -->
+      </div>
+      <!-- /.content-wrapper -->
+      <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+      <% include ../partials/footer.ejs %>
+      <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+  
+    <!-- Chen tap tin script.ejs -->
+    <% include ../partials/script.ejs %>
+  </body>
+</html>
+

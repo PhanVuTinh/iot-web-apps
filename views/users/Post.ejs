@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include partials/head.ejs %>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Cac ham load du lieu duoc su dung -->
+  <script type="text/javascript" src='/dist/js/loadFunction-Tuan.js'></script>
+  <script type="text/javascript" class="init">
+    var index = 1;
+    var pagesize = 3;
+    var ishompage_loaddata = false;
+    var totals = 0;
+    $(document).ready(function(){
+      getPostforGuest(index-1,pagesize,"<%=conf%>");
+    });
+  </script>
+</head>
+<body id="home" class="homepage" style="margin-top: 50px;background-color: #E8E8E8">
+  <% include partials/nav.ejs %> 
+  <section id="blog">
+    <div class="container" >
+      <div class="row"  style="border: 0px;" align="center">
+        <div id="hienthi"></div>
+      </div>
+      <ul class="pagination pagi-custom pull-right">
+          <!-- Phân trang ở đây -->
+      </ul>
+    </div>
+  </section>
+
+  <% include partials/footer.ejs %>
+  <% include partials/scripts.ejs %>
+  <!-- Control Sidebar -->
+  <% include partials/sidebar.ejs %>
+</div>
+<!-- ./wrapper -->
+</body>	
+<!-- jQuery 2.2.3 -->
+</html>

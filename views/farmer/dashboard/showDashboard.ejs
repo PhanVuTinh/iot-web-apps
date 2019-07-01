@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <% include ../partials/head.ejs %>
+	  <script src="/socket.io/socket.io.js"></script>
+      <script type="text/javascript" class="init">
+          var sock = "";
+          var conf = '<%=conf%>';
+          var token = '<%=token%>';
+          var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+          sock = socket;
+          var index = 0;
+          pagesize = 10;
+          var ishompage_loaddata = false;
+          $(document).ready(function(){
+           
+         
+         
+          });
+      </script>
+      <style>
+        .hidediv {
+          display: none;
+        }
+      </style>
+</head>
+<body  class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <% include ../partials/siderbar.ejs %>
+    <% include ../partials/header.ejs %>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+
+    <!-- Main content -->
+    <section class="content">
+      <!-- Start main activity -->
+      <!--- Nhúng các modal cần thiết vào -->
+      <h3>AO NUÔI TRỒNG</h3>
+   
+      <div class="padding-top-bottom">
+
+         
+		
+      <div class="row">
+        <!-- River Map -->
+        <style>
+        #PondMap { height:  600px;}
+        #icon-hoatdong { width: 25px;height: 25px;}
+       
+        </style>       
+        <div id="PondMap" ></div>
+        <script src="/maps/farmer/dan-pond-map.js"></script>
+        <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+        </script> <!-- script map -->
+        <script async defer
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9ojW6mfhfrjdpmZtCvpVCf8SeqXdhjoY&libraries=places&callback=initMapPond">
+        </script> <!-- script map -->
+        <!-- end River Map -->
+      </div>
+    </section>
+    <!-- /.content -->
+  </div>
+  
+  <!-- /.content-wrapper -->
+  <% include ../partials/footer.ejs %>
+  <% include ../partials/control_sidebar.ejs %>
+  
+	<% include ../partials/script.ejs %>
+</div>
+<!-- ./wrapper -->
+</body>
+</html>

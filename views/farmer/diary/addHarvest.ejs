@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+        <!-- Ajax Jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <!-- Jquery validation -->
+        <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" class="init">
+            var sock = "";
+            var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+            sock = socket;
+            var index = 0;
+            pagesize = 10;            
+            var selectpond = ""; var selectstocking = "";  var selectdate = ""; var selectproduct = ""; var selectunit = "";       
+            var ishompage_loaddata = false;
+            $(document).ready(function () {                
+                getStockingbyUserId('<%=conf%>','<%=token%>','<%=userId%>',function(data){                
+                    if(data != null){
+                      data.forEach(function(items){                          
+                        selectstocking += "<option value='"+items.stocking_id+"'>" +"Vụ nuôi số: " + items.stocking_id+"</option>";
+                      });
+                      $("#stocking_id").html(selectstocking);
+                      $("#stocking_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }                  
+                });             
+            });
+        </script>
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()">
+    <div class="wrapper">
+        <!-- Chen tap tin sidebar.ejs va header.ejs -->
+        <% include ../partials/siderbar.ejs %>
+            <% include ../partials/header.ejs %>
+                <!-- Phan noi dung chinh cua trang -->
+                <div class="content-wrapper">
+                    <!-- Content Header (Page header) -->
+                    <section class="content-header">
+                        <h4>
+                            <b>THÊM NHẬT KÝ NUÔI TÔM</b>
+                        </h4>
+                        <ol class="breadcrumb">
+                            <li>
+                                <a href="/quantrac/nongdan">
+                                    <i class="fa fa-dashboard"></i> Nông dân</a>
+                            </li>
+                            <li>
+                                <a href="/quantrac/nongdan/nhatki"> Nhật ký nuôi tôm</a>
+                            </li>
+                            <li><a href="/quantrac/nongdan/nhatki/themthuhoach"> Thêm thu hoạch</a></li>
+                        </ol>
+                    </section>
+                    <!-- Content body -->
+                    <section class="content">
+                        <!-- Khu vuc hien thi loi -->
+                        <div class="row">
+                            <div class="col-md-12" id="error">
+                            </div>
+                        </div>
+                        <!-- Modal cua notification -->
+                        <% include ../partials/notifiModal.ejs %>                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-primary ">                                        
+                                        <div class="box-body">                                                                                        
+                                            <div class="form-group row">
+                                                <h4 class="text-center">
+                                                    <b>BẢNG THÊM THU HOẠCH</h4>
+                                                <br>
+                                                <div class="tab-content">                                                 
+                                                        <div class="form-group">
+                                                    <label for="stocking_id" class="col-sm-1 col-md-offset-2 col-form-label ">Vụ nuôi:</label>
+                                                    <div class="col-sm-3">
+                                                        <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn vụ" id="stocking_id" name="stocking_id">
+                                                        </select>
+                                                        <span id="errorstocking_id" class="error"></span>
+                                                    </div>
+                                                    </div>
+                                                    <!-- <div class="form-group">
+                                                        <label for="harvest_harvestDate" class="col-sm-1 col-form-label ">Ngày thu hoạch:</label>
+                                                        <div class='input-group date col-md-3' id='process_day' data-provide="datepicker">
+                                                            <input type='text' data-date-format='yyyy-mm-dd' class="form-control" name="harvest_harvestDate" id="harvest_harvestDate" />
+                                                                <span class="input-group-addon">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                                <span id="errorharvest_harvestDate" class="error"></span>
+                                                        </div>                                                                                 
+                                                        <script type="text/javascript">
+                                                            $(function () {
+                                                                $('#process_day').datepicker({
+                                                                    format: 'yyyy/mm/dd',
+                                                                });                                                                                         
+                                                            }); 
+                                                        </script>
+                                                    </div>    -->
+                                                    <div class="form-group">
+                                                        <label for="harvest_harvestDate" class="col-sm-1 col-form-label ">Ngày thu hoạch:</label>                                                                                                                    
+                                                        <div class='input-group date col-md-3' id='datetimepicker1'>
+                                                            <input type='text' data-date-format='yyyy-mm-dd' class="form-control" id="harvest_harvestDate" name="harvest_harvestDate"/>
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                        </div>
+                                                        <span id="errorharvest_harvestDate" class="error"></span>
+                                                        <script type="text/javascript">
+                                                            $(function () {
+                                                                $('#datetimepicker1').datepicker({
+                                                                    format: 'yyyy-mm-dd',
+                                                                });
+                                                            });
+                                                        </script>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row col-md-offset-5">
+                                                <button class="btn btn-primary" onclick="postHarvest('<%=conf%>','<%=token%>','<%=userId%>');">Thêm</button>
+                                                <a class="btn btn-primary" href="/quantrac/nongdan/nhatki/themchitietthuhoach" >Thêm chi tiết thu hoạch</a>
+                                            </div>                                                                                                                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </section>
+                    <!-- /.content // -->
+                </div>
+                <!-- /.content-wrapper -->
+                <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+                <% include ../partials/footer.ejs %>
+                    <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+
+    <!-- Chen tap tin script.ejs -->
+    <% include ../partials/script.ejs %>    
+</body>
+
+</html>

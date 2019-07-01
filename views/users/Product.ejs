@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include partials/head.ejs %>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/plugins/ckeditor/ckeditor.js"></script>
+  <!-- Cac ham load du lieu duoc su dung -->
+  <script type="text/javascript" src='/dist/js/loadFunction-Tuan.js'></script>
+  <script type="text/javascript" class="init">
+    var sock = "";
+    var socket = io.connect("<%=conf%>");
+    sock = socket;
+    var index = 1;
+    var pagesize = 10;
+    var ishompage_loaddata = false;
+    var totals = 0;
+    var prodcate = "";
+    var stocking = "";
+    $(document).ready(function(){
+      getProductforGuest('<%=conf%>','<%=token%>','<%=secu%>',index-1,pagesize);
+      loadStokingforGuest('<%=userid%>','<%=conf%>','<%=token%>','<%=secu%>',function(item,data){
+        stocking += "<option value='" + -1 +"'>Chọn đợt thả nuôi</option>";
+        item.forEach(function(it){
+          data[it].forEach(function(items){
+            stocking += "<option value='" + items.stocking_id +"'>" +
+            moment(items.stocking_date).format('DD/MM/YYYY')  +"</option>";
+          });
+        });
+        $("#stocking_id").html(stocking);
+        //$("#prodcate_id").selectpicker('refresh');
+      });
+
+     
+    });
+   
+    
+  </script>
+  
+</head>
+<body id="home" class="homepage" style="margin-top: 50px" >
+  <% include partials/nav.ejs %> 
+  <section id="blog">
+    <div class="container-fluid">
+      <div class="row ">
+        <!-- Blog Post Content Column -->
+        <div class="col-lg-9 well">
+          <!-- div đăng tin -->
+          <style>
+              #styleProduct {
+                background-color: #38BAF7,
+              }
+            </style>
+          <div class="col-md-12 collapse div-dang-tin " id="demo"  >
+           <div id="styleProduct">  
+            <h3>ĐĂNG TIN CHO SẢN PHẨM</h3>
+            <form action="/trangchu/themsanpham" method="post"  id="frmDangSanPham">
+            <div class="row">
+                <div class="form-group col-md-6">
+                  <label for="inputCity">Tiêu đề bài đăng :</label>
+                  <span id="errorpost_title" class="error"></span>
+                  <input required  type="text" class="form-control" id="post_title" name="post_title" value="" placeholder="Nhập tiêu đề bài đăng" />
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="stocking_id">Chọn đợt thả nuôi:</label>
+                  <select data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" name="stocking_id" id="stocking_id" onchange="loadHarvestforGuest('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>')">
+                  </select>
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="harvest_id">Chọn đợt thu hoạch:</label>
+                  <select style="display: none; width: 100%" data-none-results-text="Không tìm th?y t? khóa tìm ki?m" data-live-search="true" class="form-control" name="harvest_id" id="harvest_id" onchange="loadHarvestDetailforGuest('<%=conf%>','<%=token%>','<%=secu%>')">
+                  </select>
+                </div>
+              </div>
+           
+
+
+            <!-- <div class="col-sm-12"> -->
+                <!-- <div class="form-group">
+                    <label class="control-label col-lg-4 col-md-4 col-sm-4" for="datatype_id">Chọn đợt thả nuôi:</label>
+                          <div class="row">
+                              <div class="col-md-8  col-xs-12">
+                                  <div class="input-group" style="">
+                                      
+                                  </div>
+                              </div>
+                          </div>
+                    </div>
+                    <div class="form-group">
+                    <label class="control-label col-sm-12" for="datatype_id">Chọn đợt thu hoạch:</label>
+                            <div class="row">
+                                <div class="col-md-8  col-xs-12">
+                                    <div class="input-group">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                    </div> -->
+            <!-- </div> -->
+            <!-- <div class="col-md-6">   
+                <div class="input-group">
+                    <select data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" name="stocking_id" id="stocking_id" onchange="loadHarvestforGuest('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>')">
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <select style="display: none;" data-none-results-text="Không tìm th?y t? khóa tìm ki?m" data-live-search="true" class="form-control" name="harvest_id" id="harvest_id" onchange="loadHarvestDetailforGuest('<%=conf%>','<%=token%>','<%=secu%>')">
+                    </select>
+                </div>
+            </div> -->
+            <!-- <div class="form-group">
+            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="threshold_start">Chọn hình ảnh sản phẩm:</label>
+                <div class="col-lg-8 col-md-8 col-sm-8">
+                  <div class="row">
+                      <div class="col-md-8  col-xs-12">
+                          <div class="input-group">
+                              <input id="fileSelector" type="file"><br>
+                              <img id="review" width="300"></img> <br>
+                              <img id="showPhoto" width="300" src="" height="auto">
+                              <br>
+                          </div>
+                      </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- start form --> 
+      
+            
+        <div id="content" ></div>
+       
+        <div class="form-group">
+          
+            <!-- <div class="col-lg-8 col-md-8 col-sm-8"> -->
+                <div class="row">
+                    <label class="control-label col-sm-12" for="prodtype_typeName">Mô tả :</label>
+                    <div class="col-md-12">
+                        <span id="errorpost_content" class="error"></span>
+                        <!-- <div class="responsive-text-area"> -->
+                            <textarea placeholder="Describe yourself here..." class="textareainput" name="post_content" id="post_content" required ></textarea>
+                        <!-- </div> -->
+                      
+                      </div> <!-- col-md-8  col-xs-12 -->
+                </div> <!-- row -->
+            <!-- </div> col-lg-8 col-md-8 col-sm-8 -->
+        </div> <!-- form-group -->
+            
+        <!-- <input type="text" class="form-control" id="post_content" name="post_content" value="" /> -->
+        <!-- <input type="text" class="form-control" id="post_smallPicture" name="post_smallPicture" value="" /> -->
+          
+        <div class="row">
+            <!-- <div class="form-group col-md-6">
+              <label for="post_description">Nhập mô tả sản phẩm:</label>
+              <input type="text" class="form-control" id="post_description" name="post_description" value="" placeholder="Nhập mô tả sản phẩm.." />
+            </div> -->
+            <div class="form-group col-md-6">
+              <label for="post_title">Nhập số điện thoại liên hệ:</label>
+              <span id="errorpost_description" class="error"></span>
+              <!-- <input type="text" class="form-control" id="post_title" name="post_title" value="" placeholder="Nhập số điện thoại" /> -->
+              <input required type="text" class="form-control" id="post_description" name="post_description" value="" placeholder="Nhập số điện thoại.." />
+            </div>
+          </div>
+
+
+        <!-- <div class="form-group">
+        <label class="control-label col-lg-4 col-md-4 col-sm-4" for="datatype_id">Nhập số điện thoại liên hệ:</label>
+            <div class="col-lg-8 col-md-8 col-sm-8">
+                <div class="row">
+                    <div class="col-md-8  col-xs-12">
+                        <div class="input-group" style="">
+                      
+                       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+        <div class="form-group">
+        <label class="control-label col-lg-4 col-md-4 col-sm-4" for="data">Nhập mô tả sản phẩm:</label>
+            <div class="col-lg-8 col-md-8 col-sm-8">
+                <div class="row">
+                    <div class="col-md-8  col-xs-12">
+                        <div class="input-group" style="">
+                     
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+            
+        <div class="row">
+          <div class="form-group col-md-2 pull-right">
+            <input type="submit" class="btn btn-info btn-lg " name="btnThemsanpham" value="Đăng tin" id="btnThemsanpham"/>
+          </div>
+        </div>
+        </form>
+        
+        
+<!-- end form -->
+
+          </div>  <!-- kết thúc div đăng tin -->
+          </div>
+          <hr>     
+          <div class="col-sm-12" id="hienthi"></div>
+        </div> <!-- col lg 9 -->
+        <!-- Blog Sidebar Widgets Column -->
+        <div class="col-md-3">
+          <hr>
+          <div class="well" >
+            <button class="btn btn-warning btn-lg" data-toggle="collapse" data-target="#demo">Đăng tin</button>
+          </div>
+          <div class="well">
+            <h4>Giới thiệu</h4>
+            <p>Sản phẩm từ tôm càng xanh tại đây đạt chuẩn VIETGAP, bạn có thể xem chi tiết thông tin sản phẩm khi bấm vào sản phẩm bất kì.</p>
+          </div>
+          <!-- Blog Categories Well -->
+          <!-- <div class="well">
+            <h4>Danh sách sản phẩm</h4>
+            <div class="row">
+              <div class="col-lg-6">
+                <div id="hienthi2"></div>
+              </div>
+            </div> -->  <!-- /.row -->
+        </div>
+      </div> <!-- /.row -->
+    <hr>
+    </div> <!-- /.container -->
+  </section>
+
+  <% include partials/footer.ejs %>
+  <% include partials/scripts.ejs %>
+  <script>
+      CKEDITOR.replace( 'post_content', 
+      {
+        language :'vi',
+        height: 200,
+        uiColor : 'chameleon',
+        extraPlugins : 'autogrow',
+        autoGrow_minHeight : 200,
+        autoGrow_maxHeight : 250,
+        autoGrow_bottomSpace : 50,
+        extraPlugins: 'uploadimage',
+        uploadUrl: '/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files&responseType=json',
+        filebrowserBrowseUrl: '/ckfinder/ckfinder.html',
+        filebrowserImageBrowseUrl: '/ckfinder/ckfinder.html?type=Images',
+        filebrowserUploadUrl: '/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files',
+        filebrowserImageUploadUrl: '/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images',
+        stylesSet: [
+        { name: 'Narrow image', type: 'widget', widget: 'image', attributes: { 'class': 'image-narrow' } },
+        { name: 'Wide image', type: 'widget', widget: 'image', attributes: { 'class': 'image-wide' } }
+        ],
+        contentsCss: [ CKEDITOR.basePath + 'contents.css', 'http://sdk.ckeditor.com/samples/assets/css/widgetstyles.css' ],
+        image2_alignClasses: [ 'image-align-left', 'image-align-center', 'image-align-right' ],
+        image2_disableResizer: true
+      } );
+     
+    
+      </script>
+  <!-- ./wrapper -->
+  <% include partials/sidebar.ejs %>
+  </div> <!-- ./wrapper -->
+</body>	
+</html>

@@ -1,0 +1,94 @@
+<div id="tab1" class="col-sm-12 tab-pane fade">
+    <div class="col-sm-12" style="margin-top: 50px">
+        <div class="form-group row">
+            <h4 class="text-center">
+                <b>CHUẨN BỊ AO</b>
+            </h4>
+            <br>
+        </div>
+        <form action="/quantrac/nongdan/nhatki/capnhatchuanbiao" method="post" id="frmcnvl">
+            <!-- <div class="col-sm-12" > -->
+                <div class="form-group row">
+                    <!-- <h4 class="text-center">
+                        <b>CHUẨN BỊ AO</b></h4>
+                    <br> -->                                    
+                    <label for="pondpreparation_dateStart" class="col-sm-2 col-form-label col-sm-offset-3">Ngày bắt đầu cải tạo </label>
+                    <div id="pondpreparation_dateStart_detail" class="col-sm-4">
+                        <!-- <div class="input-group">
+                            <input type="text" class="form-control" id = "stockpond_date" name="stockpond_date"/>
+                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                        </div>
+                        <span id="errorstockpond_date"></span>  -->
+                        <div class='input-group date' id='datetimepicker1'>
+                            <input type='text' class="form-control" id="pondpreparation_dateStart_Edit" name="pondpreparation_dateStart" placeholder="Ngày bắt đầu cải tạo"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            <span id="errorpondpreparation_dateStart"></span>
+                        </div>
+                        <script type="text/javascript">
+                            $(function () {
+                                $('#datetimepicker1').datetimepicker({
+                                    format: 'YYYY-MM-DD',
+                                    locale: 'vi',
+                                    useCurrent: true,
+                                    calendarWeeks: true,
+                                    sideBySide: true,
+                                   
+                                });
+                            });
+                        </script>   
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="landbg_id" class="col-sm-2 col-form-label col-sm-offset-3">Nền đáy </label>
+                    <div id="landbg_div" class="col-sm-4">
+                    
+                        <select data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" id="landbg_id_edit" name="landbg_id" class="form-control selectpicker">
+                            <option value="0">Chọn nền đáy</option>
+                        </select>
+                        <span id="errorlandbg_id" class="error"></span>
+                        <!-- <label class="radio-inline"><input type="radio" name="optradio">Trải bạt</label>
+                        <label class="radio-inline"><input type="radio" name="optradio">Đất cát</label>
+                        <label class="radio-inline"><input type="radio" name="optradio">Đất thịt</label>
+                        <label class="radio-inline"><input type="radio" name="optradio">Đất sét pha cát</label> -->
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="pondpreparation_soilPH" class="col-sm-2 col-form-label col-sm-offset-3">Độ PH đất </label>
+                    <div id="pondpreparation_soilPH_detail" class="col-sm-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="pondpreparation_soilPH_Edit" name="pondpreparation_soilPH" placeholder="Độ pH của đất"/>
+                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                        </div>
+                        <span id="errorpondpreparation_soilPH"></span>    
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="pondpreparation_capacityOfFan" class="col-sm-2 col-form-label col-sm-offset-3">CS máy quạt/máy</label>
+                    <div id="pondpreparation_capacityOfFan_detail" class="col-sm-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="pondpreparation_capacityOfFan_Edit" name="pondpreparation_capacityOfFan" placeholder="Nhập công suất máy quạt"/>
+                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                        </div>
+                        <span id="errorpondpreparation_capacityOfFan"></span>    
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="pondpreparation_quantityOfFan" class="col-sm-2 col-form-label col-sm-offset-3">Số cánh quạt máy</label>
+                    <div id="pondpreparation_quantityOfFan_detail" class="col-sm-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="pondpreparation_quantityOfFan_Edit" name="pondpreparation_quantityOfFan" placeholder="Nhập số cánh máy quạt"/>
+                            <input type="text" style="display: none;" class="form-control" id="pondpreparation_id" name="pondpreparation_id"/>
+                            <input type="text" style="display: none;" class="form-control" id="pond_id" name="pond_id"/>
+                            <input type="text" style="display: none;" class="form-control" id="stocking_id" name="stocking_id"/>
+                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                        </div>
+                        <span id="errorpondpreparation_quantityOfFan"></span>    
+                    </div>
+                </div>
+            <input type="submit" value="Cập nhật" class="btn btn-primary col-sm-offset-6">
+        </form>
+      
+    </div>
+</div>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<!-- Chen tap tin head.ejs -->
+<% include ../partials/head.ejs %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+    <!-- Ajax Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Jquery validation -->
+    <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" class="init">
+        var sock = "";
+        var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+        sock = socket;
+        var index = 0;
+        pagesize = 10;
+        var selectpond_1 = ""; var selectstocking_1 = "";
+        var selectlime = ""; var selectfishkill = ""; var selectwater = "";
+        var selectinorganic = ""; var selectorganic = ""; var selectwaterfan = ""; var selectland = "";
+        var ishompage_loaddata = false;       
+
+        $(document).ready(function () {                       
+            getLimeType('<%=conf%>','<%=token%>',function(data){                                     
+                if(data != null){
+                    data.forEach(function(items){
+                    selectlime += "<option value='"+items.material_id+"'>" + items.material_name+"</option>";
+                    });
+                    $("#lime_id").html(selectlime);
+                    $("#lime_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                }                  
+            });
+            getFishKill('<%=conf%>','<%=token%>',function(data){                                      
+                if(data != null){
+                    data.forEach(function(items){
+                    selectfishkill += "<option value='"+items.material_id+"'>" + items.material_name+"</option>";
+                    });
+                    $("#fishkill_id").html(selectfishkill);
+                    $("#fishkill_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                }                  
+            });
+            getWaterTreatment('<%=conf%>','<%=token%>',function(data){                                      
+                if(data != null){
+                    data.forEach(function(items){
+                    selectwater += "<option value='"+items.material_id+"'>" + items.material_name+"</option>";
+                    });
+                    $("#watertreat_id").html(selectwater);
+                    $("#watertreat_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                }                  
+            });
+            getInorganic('<%=conf%>','<%=token%>',function(data){                                      
+                if(data != null){
+                    data.forEach(function(items){
+                    selectinorganic += "<option value='"+items.material_id+"'>" + items.material_name+"</option>";
+                    });
+                    $("#inorganic_id").html(selectinorganic);
+                    $("#inorganic_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                }                  
+            });
+            getOrganic('<%=conf%>','<%=token%>',function(data){                                      
+                if(data != null){
+                    data.forEach(function(items){
+                    selectorganic += "<option value='"+items.material_id+"'>" + items.material_name+"</option>";
+                    });
+                    $("#organic_id").html(selectorganic);
+                    $("#organic_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                }                  
+            });
+            getWaterfan('<%=conf%>','<%=token%>',function(data){                                      
+                if(data != null){
+                    data.forEach(function(items){
+                    selectwaterfan += "<option value='"+items.material_id+"'>" + items.material_name+"</option>";
+                    });
+                    $("#waterfan_id").html(selectwaterfan);
+                    $("#waterfan_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                }                  
+            });
+            getLand('<%=conf%>','<%=token%>',function(data){                                      
+                if(data != null){
+                    data.forEach(function(items){
+                    selectland += "<option value='"+items.landbg_id+"'>" + items.landbg_name+"</option>";
+                    });
+                    $("#land_id").html(selectland);
+                    $("#land_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                }                  
+            });
+            // getPondbyUserId('<%=conf%>','<%=token%>','<%=userId%>',function(data){
+            //     if(data != null){                      
+            //         data.forEach(function(items){
+            //         selectpond_1 += "<option value='"+items.pond_id+"'>" + items.pond_description+"</option>";
+            //         });
+            //         $("#pond_id_1").html(selectpond_1);
+            //         $("#pond_id_1").selectpicker('refresh'); //load dữ liệu bootstrap select
+            //     }
+            // });
+            var mang = [];
+            getPondInPondPreparation('<%=conf%>','<%=token%>','<%=userId%>',function(data){                                     
+                if(data != null){
+                    console.log(data.pond_id);                                       
+                    selectpond_1 += "<option value='"+data.pond_id+"'>" + data.pond_description+"</option>";
+                    $("#pond_id_1").html(selectpond_1);
+                    $("#pond_id_1").selectpicker('refresh');
+                }
+            }); 
+            
+            getStockingInPondPreparation('<%=conf%>','<%=token%>','<%=userId%>',function(data){       
+                if(data != null){                                 
+                    selectstocking_1 += "<option value='"+data.stocking_id+"'>" +"Vụ nuôi số " + data.stocking_id+"</option>";
+                    $("#stocking_id_1").html(selectstocking_1);
+                    $("#stocking_id_1").selectpicker('refresh');
+                }
+            });                                               
+        });
+    </script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()">
+<div class="wrapper">
+    <!-- Chen tap tin sidebar.ejs va header.ejs -->
+    <% include ../partials/siderbar.ejs %>
+        <% include ../partials/header.ejs %>
+            <!-- Phan noi dung chinh cua trang -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h4>
+                        <b>THÊM NHẬT KÝ NUÔI TÔM</b>
+                    </h4>
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="/quantrac/nongdan">
+                                <i class="fa fa-dashboard"></i> Nông dân</a>
+                        </li>
+                        <li>
+                            <a href="/quantrac/nongdan/nhatki"> Nhật ký nuôi tôm</a>
+                        </li>
+
+                        <li><a href="/quantrac/nongdan/nhatki/themcbivatlieu"> Thêm vật liệu cho ao</a></li>
+                    </ol>
+
+                </section>
+                <!-- Content body -->
+                <section class="content">
+                    <!-- Khu vuc hien thi loi -->
+                    <div class="row">
+                        <div class="col-md-12" id="error">
+                        </div>
+                    </div>
+                    <!-- Modal cua notification -->
+                    <% include ../partials/notifiModal.ejs %>                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="box box-primary ">
+                                    
+                                        <div class="box-body">                                                                                           
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <h4 class="text-center"><label class="control-label" for="pondpreparation_id">CHUẨN BỊ VẬT LIỆU CHO AO</label></h4>
+                                                    <div class="form-group">
+                                                        
+                                                            <label for="pond_id_1" class="col-sm-1 col-form-label ">Ao nuôi:</label>
+                                                            <div class="col-sm-3">
+                                                                <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn ao" id="pond_id_1" name="pond_id_1">
+                                                                    
+                                                                </select>
+                                                                <span id="errorpond_id_1" class="error"></span>                                                                
+                                                            </div>
+                                                        
+                                                        
+                                                            <label for="stocking_id_1" class="col-sm-1 col-form-label ">Vụ nuôi:</label>
+                                                            <div class="col-sm-3">
+                                                                <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Vụ nuôi"  id="stocking_id_1" name="stocking_id_1">
+                                                                </select>
+                                                                <span id="errorstocking_id_1" class="error"></span>                                                                
+                                                            </div>
+                                                                                                                          
+                                                    </div>                                                         
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="col-md-2"></th>
+                                                            <th class="col-md-2">Loại</th>
+                                                            <th class="col-md-1">Số lượng</th>
+                                                            <th class="col-md-2">Ngày xử lí</th>
+                                                            <th class="col-md-2">Ghi chú</th>
+                                                            <th class="col-md-2">Số vật liệu</th>
+                                                        </tr>
+                                                    </thead>                                        
+                                                    <tbody>                                                                                                                          
+                                                        <tr class="info">                                                            
+                                                            <td>Vôi</td>                                                            
+                                                            <td>
+                                                                <select class="col-lg-11" id="lime_id" name="lime_id">                                                                                                      
+                                                                </select>
+                                                                <span id="errorlime_id" class="error"></span>
+                                                            </td>                                                                                                                   
+                                                            <td>
+                                                                <input type="number" id="quantitylime_id" name="quantitylime_id"> </input>
+                                                                <span id="errorquantitylime_id" class="error"></span>
+                                                            </td>                                                                                                                           
+                                                            <td>
+                                                                <div class='input-group date' id='process_day' data-provide="datepicker">
+                                                                    <input type='text' data-date-format='yyyy-mm-dd' class="form-control" name="limeday_id" id="limeday_id" />
+                                                                    <span class="input-group-addon">
+                                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                                    </span>
+                                                                    <span id="errorlimeday_id" class="error"></span>
+                                                                </div>                                                                                 
+                                                                <script type="text/javascript">
+                                                                    $(function () {
+                                                                        $('#process_day').datepicker({
+                                                                            format: 'yyyy-mm-dd',
+                                                                        });                                                                                         
+                                                                    }); 
+                                                                </script>                                                                                                                                                                                                                                                                                                           
+                                                            </td>                                                             
+                                                            
+                                                            <td>
+                                                                <input type="text" name="limenote_id" id="limenote_id"> </input> 
+                                                                <span id="errorlimenote_id" class="error"></span>
+                                                            </td>                                                         
+                                                            
+                                                            <td>
+                                                                <input type="number" name="limenumber_id" id="limenumber_id"> </input> 
+                                                                <span id="errorlimenumber_id" class="error"></span>
+                                                            </td>
+                                                            
+                                                            <td><button class="btn btn-primary" onclick="postLime('<%=conf%>','<%=token%>');">Thêm</button></td>                                                            
+                                                        </tr>                                                        
+                                                        <tr>
+                                                            <td>Chất diệt cá tạp</td>
+                                                            <td>
+                                                                <select class="col-lg-11" id="fishkill_id" name="fishkill_id">                                                                                                     
+                                                                </select>
+                                                            </td>
+                                                            
+                                                            <td><input type="number" id="quantityfishkill_id" name="quantityfishkill_id"> </input> </td>
+                                                            <span id="errorquantityfishkill_id" class="error"></span>
+                                                            
+                                                            
+                                                            <td>
+                                                                <div class='input-group date' id='process_day1'>
+                                                                    <input type='text' data-date-format='yyyy-mm-dd' class="form-control" name="fishkillday_id" id="fishkillday_id" />
+                                                                    <span class="input-group-addon">
+                                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                                    </span>
+                                                                    <span id="errorfishkillday_id" class="error"></span>
+                                                                </div>                                                                                 
+                                                                <script type="text/javascript">
+                                                                        $(function () {
+                                                                            $('#process_day1').datepicker({
+                                                                                format: 'yyyy-mm-dd',
+                                                                            });                                                                                         
+                                                                        }); 
+                                                                </script>                                                                                                                                                            
+                                                            </td>
+                                                            
+                                                             
+                                                            <td><input type="text" id="fishkillnote_id" name="fishkillnote_id"> </input> </td>
+                                                            <span id="errorfishkillnote_id" class="error"></span>
+                                                            
+                                                            
+                                                            <td><input type="number" id="fishkillnumber_id" name="fishkillnumber_id"> </input> </td>
+                                                            <span id="errorfishkillnumber_id" class="error"></span>                                                                            
+                                                            
+                                                            <td><button class="btn btn-primary" onclick="postFishSkill('<%=conf%>','<%=token%>');">Thêm</button></td>
+                                                            
+                                                        </tr>
+                                                        
+                                                        <tr class="info">
+                                                            <td>Hóa chất xử lý nước</td>
+                                                            <td>
+                                                                <select class="col-lg-11" id="watertreat_id" name="watertreat_id">                                                                                                      
+                                                                </select>
+                                                            </td>
+                                                            <td><input type="number" id="quantitytreat_id" name="quantitytreat_id"> </input> </td>
+                                                            <td>
+                                                                <div class='input-group date' id='process_day2'>
+                                                                    <input type='text' data-date-format='yyyy-mm-dd' class="form-control" name="watertreatday_id" id="watertreatday_id"/>
+                                                                        <span class="input-group-addon">
+                                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                                        </span>
+                                                                </div>                                                                                 
+                                                                <script type="text/javascript">
+                                                                            $(function () {
+                                                                                $('#process_day2').datepicker({
+                                                                                    format: 'yyyy-mm-dd',
+                                                                                });                                                                                         
+                                                                            }); 
+                                                                </script>   
+                                                            </td>   
+                                                            <td><input type="text" name="watertreatnote_id" id="watertreatnote_id"> </input> </td>
+                                                            <td><input type="number" name="watertreatnumber_id" id="watertreatnumber_id"> </input> </td>    
+                                                            <td><button class="btn btn-primary" onclick="postWatertreat('<%=conf%>','<%=token%>');">Thêm</button></td>
+                                                        </tr> 
+                                                        <tr>
+                                                            <td>Phân vô cơ</td>
+                                                            <td>
+                                                                <select class="col-lg-11" id="inorganic_id" name="inorganic_id">                                                                                                     
+                                                                </select>
+                                                            </td>
+                                                            <td><input type="number" id="quantityinorganic_id"> </input> </td>
+                                                            <td>
+                                                                <div class='input-group date' id='process_day3'>
+                                                                    <input type='text' data-date-format='yyyy-mm-dd' class="form-control" name="inorganicday_id" id="inorganicday_id"/>
+                                                                    <span class="input-group-addon">
+                                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                                    </span>
+                                                                </div>                                                                                 
+                                                                    <script type="text/javascript">
+                                                                            $(function () {
+                                                                                $('#process_day3').datepicker({
+                                                                                    format: 'yyyy-mm-dd',
+                                                                                });                                                                                         
+                                                                            }); 
+                                                                    </script>      
+                                                                </td>   
+                                                            <td><input type="text" id="inorganicnote_id" name="inorganicnote_id"> </input> </td>
+                                                            <td><input type="number" id="inorganicnumber_id" name="inorganicnumber_id"> </input> </td>    
+                                                            <td><button class="btn btn-primary" onclick="postInorganic('<%=conf%>','<%=token%>');">Thêm</button></td>
+                                                        </tr> 
+                                                        <tr class="info">
+                                                            <td>Phân hữu cơ</td>
+                                                            <td>
+                                                                <select class="col-lg-11" id="organic_id" name="organic_id">                                                                                                      
+                                                                </select>
+                                                            </td>
+                                                                <td><input type="number" id="quantityorganic_id" name="quantityorganic_id"> </input> </td>
+                                                                <td>
+                                                                    <div class='input-group date' id='process_day4'>
+                                                                        <input type='text' data-date-format='yyyy-mm-dd' class="form-control" name="organicday_id" id="organicday_id" />
+                                                                            <span class="input-group-addon">
+                                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                                            </span>
+                                                                    </div>                                                                                 
+                                                                    <script type="text/javascript">
+                                                                        $(function () {
+                                                                            $('#process_day4').datepicker({
+                                                                                format: 'yyyy-mm-dd',
+                                                                            });                                                                                         
+                                                                        }); 
+                                                                    </script>                                                                                                                                                                                                                                     
+                                                                </td>   
+                                                                <td><input type="text" id="organicnote_id" name="organicnote_id"> </input> </td>
+                                                                <td><input type="number" id="organicnumber_id" name="organicnumber_id"> </input> </td>    
+                                                                <td><button class="btn btn-primary" onclick="postOrganic('<%=conf%>','<%=token%>');">Thêm</button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Máy quạt nước</td>
+                                                            <td>
+                                                                <select class="col-lg-11" id="waterfan_id" name="waterfan_id">                                                                                                      
+                                                                </select>
+                                                            </td>
+                                                            <td><input type="number" id="quantityfan_id" name="quantityfan_id"> </input> </td>
+                                                            <td>
+                                                                <div class='input-group date' id='process_day5'>
+                                                                    <input type='text' data-date-format='yyyy-mm-dd' class="form-control" id="waterfanday_id" name="waterfanday_id" />
+                                                                    <span class="input-group-addon">
+                                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                                    </span>
+                                                                </div>                                                                                 
+                                                                <script type="text/javascript">
+                                                                                    $(function () {
+                                                                                        $('#process_day5').datepicker({
+                                                                                            format: 'yyyy-mm-dd',
+                                                                                        });                                                                                         
+                                                                                    }); 
+                                                                </script>                                                                                                                                                                                                                                 
+                                                            </td>   
+                                                            <td><input type="text" id="waterfannote_id" name="waterfannote_id"> </input> </td>
+                                                            <td><input type="number" id="waterfannumber_id" name="waterfannumber_id"> </input> </td>    
+                                                            <td><button class="btn btn-primary" onclick="postWaterfan('<%=conf%>','<%=token%>');">Thêm</button></td>
+                                                        </tr>                                                                       
+                                                    </tbody>                                                                                               
+                                                </table>                                            
+                                            </div>                                                                                                                                                                                                                   
+                                        </div>
+                                    
+                                </div>   
+                            </div>
+                        </div>
+                </section>
+                <!-- /.content // -->
+            </div>
+            <!-- /.content-wrapper -->
+            <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+            <% include ../partials/footer.ejs %>
+                <% include ../partials/control_sidebar.ejs %>
+</div>
+<!-- ./wrapper -->
+<!-- Dinh nghia bien -->
+
+<!-- Chen tap tin script.ejs -->
+<% include ../partials/script.ejs %>   
+
+</body>
+
+</html>

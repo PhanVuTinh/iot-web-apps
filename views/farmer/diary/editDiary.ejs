@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <!-- Ajax Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Jquery validation -->
+    <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" class="init">
+		var sock = "";
+		var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+        sock = socket;
+        var index = 0;
+        pagesize = 10;
+        var ishompage_loaddata = false;
+        $(document).ready(function(){
+            getDiaryForEdit('<%=conf%>','<%=token%>','<%=userId%>','<%=diaryId%>',function(data){
+                // console.log(JSON.stringify(data));
+                var diaryFarmname = '<h4>'+ data.diary_farmname +'</h4>';
+                var diary_address = '<h4>'+ data.diary_address+'</h4>';
+                var diary_phone = '<h4>'+ data.diary_phone +'</h4>';
+                var diary_square = '<h4>'+ data.diary_square +'</h4>';
+                var species_id = '<h4>'+ data.species_id +'</h4>';
+                var stockingtypeId = data.stockingtype_id;
+
+                getStockingNameById('<%=conf%>','<%=token%>','<%=userId%>',stockingtypeId,function(data2){
+                    var stockingtype_name = '<h4>'+ data2.stockingtype_name +'</h4>';
+                    $('#stockingtype_id').html(stockingtype_name);
+                });
+               
+                $('#diary_farmname').html(diaryFarmname);
+                $('#diary_address').html(diary_address);
+                $('#diary_phone').html(diary_phone);
+                $('#diary_square').html(diary_square);
+               
+              
+            });
+       
+        });
+    </script>
+
+  </head>
+  <body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()" >
+    <div class="wrapper">
+      <!-- Chen tap tin sidebar.ejs va header.ejs -->
+      <% include ../partials/siderbar.ejs %>
+      <% include ../partials/header.ejs %>
+      <!-- Phan noi dung chinh cua trang -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+                <h4><b>CẬP NHẬT NHẬT KÝ NUÔI TÔM</b></h4>
+          <ol class="breadcrumb">
+            <li><a href="/quantrac/nongdan"><i class="fa fa-dashboard"></i> Nông dân</a></li>
+            <li><a href="/quantrac/nongdan/dotnuoi/danhsach"> Nhật ký nuôi tôm</a></li>
+        
+            <li class="active">Nhật ký</li>
+          </ol>
+        
+        </section>
+        <!-- Content body -->
+        <section class="content">
+            <!-- Khu vuc hien thi loi -->
+            <div class="row">
+                <div class="col-md-12" id= "error">              
+                </div>
+            </div>
+            <!-- Modal cua notification -->
+            <% include ../partials/notifiModal.ejs %>
+            <div class="row">
+                <div class="col-md-5 col-sm-12">
+                    <div class="form-group">
+                        <a title = "Quay lại trang trước" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Quay lại</button></a> 
+                        <!-- <a title = "Vật liệu chuẩn bị ao" href="/quantrac/nongdan/nhatki/chuanbiao/<%= diaryId %>"><button class="btn btn-primary">Vật Liệu Chuẩn Bị Ao</button></a> 
+                        <a title = "Chuẩn bị ao" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Chuẩn Bị Ao</button></a> 
+                        <a title = "Thả giống" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Thả Giống</button></a>  -->
+                    </div>
+                </div>
+                <!-- <div class="col-md-7 col-sm-12">
+                    <div class="form-group">
+                        <a title = "Theo dõi tăng trưởng" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Theo dõi tăng trưởng</button></a> 
+                        <a title = "Theo dõi và phòng trị bệnh" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Theo dõi thức ăn & phòng trị bệnh</button></a> 
+                        <a title = "Tổng kết" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Tổng Kết</button></a> 
+                    </div>
+                </div> -->
+                <!-- <div class="col-md-offset-6 col-md-3 col-sm-offset-6 col-sm-3">
+                    <div class="form-group">
+                      
+                    </div>
+                </div> -->
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary ">
+                        <div class="box-header with-border text-center">
+                            <h3 class="box-title" ><b>SỔ</h3><br>
+                            <h3 class="box-title" ><b>NHẬT KÝ NUÔI TÔM</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12" >
+                                    <div class="form-group row">
+                                        <h4 class="text-center">
+                                            <b>THÔNG TIN TRẠI NUÔI</h4>
+                                        <br>
+                                        <label for="diary_farmname" class="col-sm-2 col-form-label col-sm-offset-3">Tên trại nuôi:</label>
+                                        <div class="col-sm-4" id="diary_farmname">
+                                           
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="diary_address" class="col-sm-2 col-form-label col-sm-offset-3">Địa chỉ:</label>
+                                        <div class="col-sm-4" id="diary_address">
+                                          
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="diary_phone" class="col-sm-2 col-form-label col-sm-offset-3">Số Điện Thoại:</label>
+                                        <div class="col-sm-4" id="diary_phone">
+                                          
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="stockingtype_id" class="col-sm-2 col-form-label col-sm-offset-3">Hình thức nuôi:</label>
+                                        <div class="col-sm-4" id="stockingtype_id">
+                                           
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="species_id" class="col-sm-2 col-form-label col-sm-offset-3">Đối tượng nuôi:</label>
+                                        <div class="col-sm-4" id="species_id">
+                                           
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="diary_square" class="col-sm-2 col-form-label col-sm-offset-3">Diện tích:</label>
+                                        <div class="col-sm-4" id="diary_square">
+                                          
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12">
+                                    <ul class="nav nav-pills">
+                                        <li class="nav-item">
+                                            <a title = "Chuẩn bị ao" href="/quantrac/nongdan/nhatki/chuanbiao/<%= diaryId %>"><button class="btn btn-primary">Chuẩn Bị Ao</button></a> 
+                                        </li>
+                                        <li class="nav-item">
+                                            <a title = "Thả giống" href="/quantrac/nongdan/nhatki/thagiong/<%= diaryId %>"><button class="btn btn-primary">Thả Giống</button></a> 
+                                        </li>
+                                        <li class="nav-item">
+                                            <a title = "Theo dõi tăng trưởng" href="/quantrac/nongdan/nhatki/theodoitangtruong/<%= diaryId %>"><button class="btn btn-primary">Theo dõi tăng trưởng</button></a> 
+                                        </li>
+                                        <li class="nav-item">
+                                            <a title = "Theo dõi và phòng trị bệnh" href="/quantrac/nongdan/nhatki/theodoithucan/<%= diaryId %>"><button class="btn btn-primary">Theo dõi thức ăn & phòng trị bệnh</button></a> 
+                                        </li>
+                                        <li>
+                                            <a title = "Tổng kết" href="/quantrac/nongdan/nhatki/tongket/<%= diaryId %>"><button class="btn btn-primary">Tổng Kết</button></a> 
+                                        </li>
+                                    </ul>
+                                   
+                                        <!-- <a title = "Vật liệu chuẩn bị ao" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Vật Liệu Chuẩn Bị Ao</button></a>  -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="row">
+                    <div class="col-md-3 col-sm-3">
+                        <div class="form-group">
+                            <a title = "Quay lại trang trước" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Quay lại</button></a> 
+                            <a title ="" href="/quantrac/nongdan/nhatki/them"><button class="btn btn-primary ">Thêm Nhật Kí Nuôi</button></a>
+                        </div>
+                    </div>
+                    <div class="col-md-offset-6 col-md-3 col-sm-offset-6 col-sm-3">
+                        <div class="form-group">
+                          
+                        </div>
+                    </div>
+                </div> -->
+        </section>   
+      <!-- /.content // -->
+      </div>
+      <!-- /.content-wrapper -->
+      <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+      <% include ../partials/footer.ejs %>
+      <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+  
+    <!-- Chen tap tin script.ejs -->
+    <% include ../partials/script.ejs %>
+  </body>
+</html>
+

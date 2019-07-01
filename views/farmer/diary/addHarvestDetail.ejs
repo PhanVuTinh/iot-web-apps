@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+        <!-- Ajax Jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <!-- Jquery validation -->
+        <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" class="init">
+            var sock = "";
+            var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+            sock = socket;
+            var index = 0;
+            pagesize = 10;            
+            var selectpond = ""; var selectstocking = "";  var selectdate = ""; var selectproduct = ""; var selectunit = "";       
+            var ishompage_loaddata = false;
+            $(document).ready(function () {                   
+                getPondbyUserId('<%=conf%>','<%=token%>','<%=userId%>',function(data){
+                    if(data != null){
+                      data.forEach(function(items){
+                        selectpond += "<option value='"+items.pond_id+"'>" + items.pond_description+"</option>";
+                      });
+                      $("#pond_id").html(selectpond);
+                      $("#pond_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }
+                });
+                getDateInHarvest('<%=conf%>','<%=token%>',function(data){                
+                    if(data != null){
+                      data.forEach(function(items){                          
+                        selectdate += "<option value='"+items.harvest_id+"'>" + items.harvest_harvestDate+"</option>";
+                      });
+                      $("#harvest_id").html(selectdate);
+                      $("#harvest_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }                  
+                });
+                getProductType('<%=conf%>','<%=token%>',function(data){                
+                    if(data != null){
+                      data.forEach(function(items){                          
+                        selectproduct += "<option value='"+items.prodtype_id+"'>" + items.prodtype_typeName+"</option>";
+                      });
+                      $("#prodtype_id").html(selectproduct);
+                      $("#prodtype_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }                  
+                });
+                getUnit('<%=conf%>','<%=token%>',function(data){                
+                    if(data != null){
+                      data.forEach(function(items){                          
+                        selectunit += "<option value='"+items.unit_id+"'>" + items.unit_name+ ": " + items.unit_description +"</option>";
+                      });
+                      $("#unit_id").html(selectunit);
+                      $("#unit_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }                  
+                });             
+            });
+        </script>
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()">
+    <div class="wrapper">
+        <!-- Chen tap tin sidebar.ejs va header.ejs -->
+        <% include ../partials/siderbar.ejs %>
+            <% include ../partials/header.ejs %>
+                <!-- Phan noi dung chinh cua trang -->
+                <div class="content-wrapper">
+                    <!-- Content Header (Page header) -->
+                    <section class="content-header">
+                        <h4>
+                            <b>THÊM NHẬT KÝ NUÔI TÔM</b>
+                        </h4>
+                        <ol class="breadcrumb">
+                            <li>
+                                <a href="/quantrac/nongdan">
+                                    <i class="fa fa-dashboard"></i> Nông dân</a>
+                            </li>
+                            <li>
+                                <a href="/quantrac/nongdan/nhatki"> Nhật ký nuôi tôm</a>
+                            </li>
+                            <li><a href="/quantrac/nongdan/nhatki/themchitietthuhoach"> Thêm chi tiết thu hoạch</a></li>
+                        </ol>
+                    </section>
+                    <!-- Content body -->
+                    <section class="content">
+                        <!-- Khu vuc hien thi loi -->
+                        <div class="row">
+                            <div class="col-md-12" id="error">
+                            </div>
+                        </div>
+                        <!-- Modal cua notification -->
+                        <% include ../partials/notifiModal.ejs %>                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-primary ">
+                                        <form action="/quantrac/nongdan/nhatki/themctthuhoach" method="post" id="frmHarvestDetail">                                        
+                                            <div class="box-body">                                                                                       
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>BẢNG THÊM CHI TIẾT THU HOẠCH</h4>
+                                                    <br>   
+                                                </div>                                                
+                                                <div class="form-group row">
+                                                    <label for="pond_id" class="col-sm-2 col-md-offset-3 col-form-label ">Ao nuôi:</label>
+                                                    <div class="col-sm-4">
+                                                        <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn ao" id="pond_id" name="pond_id">
+                                                        </select>
+                                                        <span id="errorpond_id" class="error"></span>
+                                                    </div>
+                                                </div>                                             
+                                                <div class="form-group row">                                                    
+                                                    <label for="harvest_id" class="col-sm-2 col-form-label col-sm-offset-3">Ngày thu hoạch:</label>
+                                                    <div class="col-sm-4">
+                                                        <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn ngày" id="harvest_id" name="harvest_id">
+                                                        </select>
+                                                        <span id="errorharvest_id" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="harvedeta_number" class="col-sm-2 col-form-label col-sm-offset-3">Lần thu hoạch: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="harvedeta_number" name="harvedeta_number" placeholder="Lần thu hoạch thứ ?">
+                                                        <span id="errorharvedeta_number" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="prodtype_id" class="col-sm-2 col-form-label col-sm-offset-3">Kích cỡ: </label>
+                                                    <div class="col-sm-4">
+                                                        <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn kích cỡ" id="prodtype_id" name="prodtype_id">
+                                                        </select>
+                                                        <span id="errorprodtype_id" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="unit_id" class="col-sm-2 col-form-label col-sm-offset-3">Đơn vị tính: </label>
+                                                    <div class="col-sm-4">
+                                                        <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn đơn vị tính" id="unit_id" name="unit_id">
+                                                        </select>
+                                                        <span id="errorunit_id" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="harvedeta_price" class="col-sm-2 col-form-label col-sm-offset-3">Giá tôm: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="harvedeta_price" name="harvedeta_price" placeholder="Giá">
+                                                        <span id="errorharvedeta_price" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="harvedeta_weight" class="col-sm-2 col-form-label col-sm-offset-3">Trọng lượng tôm: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="harvedeta_weight" name="harvedeta_weight" placeholder="Trọng lượng">
+                                                        <span id="errorharvedeta_weight" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="harvedeta_note" class="col-sm-2 col-form-label col-sm-offset-3">Ghi chú: </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="harvedeta_note" name="harvedeta_note" placeholder="Ghi chú">
+                                                    </div>
+                                                </div>                                                
+                                                <div class="form-group row  col-md-offset-6">                                                                                                          
+                                                    <!-- <button type="button" class="btn btn-primary col-sm-offset-1" onclick="postHarvestDetail('<%=conf%>','<%=token%>');">Thêm</button>    -->
+                                                    <input type="submit" class="btn btn-primary col-sm-offset-1" value="Thêm">
+                                                </div>                                               
+                                                <hr> 
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                    </section>
+                    <!-- /.content // -->
+                </div>
+                <!-- /.content-wrapper -->
+                <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+                <% include ../partials/footer.ejs %>
+                <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+
+    <!-- Chen tap tin script.ejs -->
+    <% include ../partials/script.ejs %>    
+</body>
+</html>

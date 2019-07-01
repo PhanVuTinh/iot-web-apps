@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/head.ejs %>
+ 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" class="init">
+		var sock = "";
+		var socket = io.connect("<%=conf%>");
+		sock = socket;
+		var index = 0;
+		pagesize = 10;
+		var ishompage_loaddata = false;
+		$(document).ready(function(){
+			getListRegionByUserId('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>',index,pagesize);
+			$("#txtTimKiem").keyup(function(){
+				$("#txtTimKiem").blur();
+				$("#txtTimKiem").focus(); /*Cho input focus để xử lý onchange tốt hơn*/
+			});
+			$("#txtTimKiem").change(function(){
+				getListRegionByUserId('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>',index,pagesize);
+			});
+		});
+
+		function showTable(){
+    var x = document.getElementById('myTable');
+        if (x.style.display === "none") {
+          x.style.display = "block";
+      } else {
+          x.style.display = "none";
+      }
+	}
+	function initMapVung(){
+		var divMapVung = document.getElementById('MapVung');
+		var mapCenter = new google.maps.LatLng(10.0451618,105.74685354);
+		var mapOptions = { 
+				zoom : 6,
+				center: mapCenter
+		};
+		var RegionMap = new google.maps.Map(divMapVung,mapOptions);
+		jQuery.ajax({
+			url : '<%=conf%>' +'/api/station/getall/',
+			type: 'GET',
+			headers: {'Authorization': '<%=secu%>' + '<%=token%>'},
+			contentType: 'application/json; charset=utf-8',
+			success: function(resultdata){
+			console.log('map data tram success');
+			}
+		});
+
+   
+
+	}
+	</script>
+</head>
+<body onload="loadRealTime('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>',sock,ishompage_loaddata);countNotification(sock,'<%=userid%>');" class="hold-transition skin-blue sidebar-mini">
+
+<div class="wrapper">
+  <% include ../partials/nav.ejs %>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+       Quản lý vùng
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="/quantrac/quantri"><i class="fa fa-dashboard"></i>Trang chủ</a></li>
+        <li><a href="/quantrac/quantri/vung/danhsachvung">Danh sách vùng</a></li>
+      </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <!--- Nhúng các modal cần thiết vào -->
+      <div class="padding-top-bottom"></div>
+      <% include ../partials/partialsDisplayError.ejs %>
+  		<div class="row">
+  			<div class="col-lg-12">
+
+					<div style="margin-bottom:9px;" class="row">
+							<div class="col-md-3">
+								<div class="form-inline pull-left">
+									<div class="form-group">
+											<a id="btnThem" href="/quantrac/quantri/vung/themvung" class="btn btn-primary btn-flat">Thêm vùng</a>
+									</div>
+									<div class="form-group">
+										<a onclick="showTable()"  class="btn btn-primary btn-flat">Ẩn/Hiện Danh Sách</a>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3 col-md-offset-6">
+								<div class="form-inline pull-right">
+									<div class="form-group">
+										<div class="input-group">
+											<div style="font-weight:bold;" class="input-group-addon">Tìm kiếm</div>
+											<input placeholder="Tìm theo tên tên vùng" type="text" class="form-control pull-right" id="txtTimKiem">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+  				<div class="box box-primary" id="myTable" style="display: none">
+  					<div class="box-header text-center with-border">
+  						<h3 class="box-title">DANH SÁCH VÙNG</h3>
+  					</div>
+  					<!-- /.box-header -->
+  					<div class="box-body">
+  						<div class="table-responsive" >
+  							<table class="table table-hover table-bordered">
+  								<thead>
+  									<tr style="background-color:#337ab7;color:white;">
+  										<th>Tên vùng</th>
+  										<th>Xã</th>
+  										<th>Thao tác</th>
+  									</tr>
+  								</thead>
+  								<tbody id="hienthidsvung">
+
+  								</tbody>
+  							</table>
+  							<ul class="pagination pagi-custom pull-right">
+  			                  <!-- Phân trang ở đây -->
+  			                </ul>
+  						</div>
+  					</div>
+  				</div>
+  			</div>
+			</div>
+			<!-- Map vùng -->
+			<div id="MapVung" style="height:500px;"></div>
+			<!-- <script src="/maps/manager/dan-vung-map.js"></script> -->
+			<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+			</script>
+		 <script 
+			 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9ojW6mfhfrjdpmZtCvpVCf8SeqXdhjoY&libraries=places&callback=initMapVung">
+		 </script>
+			
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="footer-title main-footer">
+  	<div class="pull-right hidden-xs">
+  		<b>Phiên bản</b> 1.0
+  	</div>
+  	<strong>Copyright &copy; Bộ môn Công Nghệ Phần Mềm,<a target="_blank" href="http://cit.ctu.edu.vn/"> Khoa CNTT & TT</a>, <a target="_blank" href="http://ctu.edu.vn/">Trường ĐH Cần Thơ</a>.</strong>
+  </footer>
+  <% include ../partials/scripts.ejs %>
+  <!-- Control Sidebar -->
+	<% include ../partials/sidebar.ejs %>
+
+</div>
+<!-- ./wrapper -->
+</body>
+</html>

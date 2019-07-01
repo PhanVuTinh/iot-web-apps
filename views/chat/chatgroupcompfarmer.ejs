@@ -1,0 +1,249 @@
+<style type="text/css">
+    .chat-box-group {
+        position: fixed;
+        z-index: 10000;
+        bottom: 0;
+        right: 10px;
+        width: 300px;
+        height: 400px;
+        border: solid 2px #333;
+        background-color: #eee;
+        border-radius: 4px;
+        box-shadow: 0 0 5px #222;
+    }
+
+    .chat-box-group .header {
+        text-align: center;
+        background-color: #333;
+        color: #eff;
+        font-weight: 700;
+        height: 30px;
+        width: 100%;
+        vertical-align: middle;
+        line-height: 30px;
+    }
+    .chat-box-group .body{
+        height: 100%;
+    }
+
+    .chat-box-group .header .btn-exit{
+        float: right;
+        color: #eff;
+        font-size: 26px;
+        cursor: pointer;
+    }
+    .chat-box-group .header .btn-exit:hover{
+        color: #f11;
+    }
+
+    .chat-box-group .header::selection{
+        background-color: transparent;
+    }
+
+    .chat-box-group .content-chat {
+        height: calc(100% - 80px);
+        width: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .chat-box-group .send-box {
+        height: 50px;
+        width: 100%;
+        display: inline-block;
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+
+    .chat-box-group .send-box #input-msg {
+        width: 100%;
+        outline: 0;
+        height: 50px;
+        border: solid 1px #677;
+        border-radius: 5px;
+        box-shadow: 0 0 3px #333;
+        padding: 4px;
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .chat-box-group .send-box #btnSend {
+        border: solid 1px #359bed;
+        background-color: #36f;
+        border-radius: 4px;
+        height: 50px;
+        outline: 0;
+        width: 100%;
+        margin: 0;
+    }
+
+    .message {
+        
+        display: block;
+        padding: 4px;
+    }
+
+    .message > * {
+        display: block;
+    }
+
+    .message.me {
+        min-height:0;
+        text-align: right;
+    }
+
+    .message .content {
+        min-height:0;
+        background-color: #333;
+        color: #eff;
+        border-radius: 0 5px 5px 0;
+        display: inline-block;
+        padding: 6px;
+    }
+
+    .message.me .content {
+        min-height:0;
+        background-color: #36f;
+        border-radius: 5px 0 0 5px;
+    }
+
+    .message .timestamp {
+        font-size: 10px;
+    }
+</style>
+<script type="text/javascript">
+    let _cglet = {
+        q : function(query){
+            return document.querySelector(query)
+        },
+        ce: function(tag){
+            return document.createElement(tag);
+        },
+        dialog: function(){
+            this.alert=function(txt){
+                alert(txt);
+            }
+        }
+    };
+
+    function newGroupConversation(chatgroupid,chatgroupname,conid,ismanager) {
+        let content = '<div class="header">' + chatgroupname + '<i class="fa fa-times btn-exit" aria-hidden="true"></i></div><div class="body"><div class="content-chat"></div> <table style="border-spacing:0;border-collapse:collapse;width:100%;position: absolute; bottom: 0;"> <tbody style="border-spacing:0;border-collapse:collapse;width:100%;"> <tr class="send-box"> <td style="width: 70%;height: 100%;"> <input type="text" id="input-msg"> </td> <td style="width: 30%;height: 100%;"> <button id="btnSend">Send</button> </td> </tr> </tbody> </table></div>';
+        var chatSock = io.connect('<%=conf%>');
+        if(!document.getElementById('chatbox'))
+        $(".chat").append($("<div class='chat-box-group' id='chatboxgroup'>").html(content));
+        else
+        $(".chat").append($("<div class='chat-box-group' id='chatboxgroup' style='right:'>").html(content));
+
+        $(".chat-box-group .header").dblclick(function(){
+            if($(".chat-box-group").css("bottom") === "0px"){
+                // will close chat
+                $(".chat-box-group .body").fadeOut();
+                $(".chat-box-group").css({
+                    "top":"calc(100% - 30px)",
+                    "bottom":"auto"
+                });
+            }else{
+                $(".chat-box-group .body").fadeIn();
+                $(".chat-box-group").css({
+                    "bottom":"0",
+                    "top":"auto"
+                });
+            }
+        });
+
+        $(".chat-box-group .header .btn-exit").click(function(){
+            $(".chat-box-group").remove();
+        });
+
+        let chatContent = _cglet.q(".chat-box-group .content-chat");
+
+        
+        getgroupMessage(conid,function(data){
+            for(var i=data.Items.length-1; i>=0;i--){
+            let message = _cglet.ce("div");
+            message.className = "message " + (('<%=userid%>' == data.Items[i].user_id) ? "me" : "notme");
+
+            $(message).append(
+                $("<b class='sender'>").text(data.Items[i].user_fullName)
+            ).append(
+                $("<span class='content'>").text(data.Items[i].message_content)
+                ).append(
+                $("<i class='timestamp'>").text(formatDate(data.Items[i].message_time))
+                );
+
+            $(chatContent).append(message)
+            $(chatContent).scrollTop(chatContent.scrollHeight);
+            }
+        });
+        function groupMessage({ user_id, message_content, message_time,user_fullName}) {
+            let message = _cglet.ce("div");
+            message.className = "message " + (('<%=userid%>' == user_id) ? "me" : "notme");
+
+            $(message).append(
+                $("<b class='sender'>").text(user_fullName)
+            ).append(
+                $("<span class='content'>").text(message_content)
+                ).append(
+                
+                $("<i class='timestamp'>").text(formatDate(message_time))
+                );
+            $(chatContent).append(message);
+            $(chatContent).scrollTop(chatContent.scrollHeight);
+        }
+        function formatDate(date){
+            var datetime = new Date(date);
+            var str_time = datetime.getHours()+":" + datetime.getMinutes()+":" + datetime.getSeconds();
+            var str_date = datetime.getDate()+"/" + (datetime.getMonth()+1)+"/" + datetime.getFullYear();
+            return str_time +" " + str_date;
+        }
+        function getgroupMessage(conversation_id,callback){
+            jQuery.ajax({
+                url: '<%=conf%>' + '/api/message/getpagination/'+conversation_id,
+                method: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                headers: { 'Authorization': '<%=token%>' },
+                success: function(resultdata) {
+                 callback(resultdata.data);
+                },
+                error: function(jqXHR, error, errorThrown) {
+                    displayError("Lỗi ! ");
+                }
+            });
+        }
+        function sendgroupMessage() {
+            let msg = _cglet.q(".chat-box-group .send-box #input-msg");
+            jQuery.ajax({
+                url: '<%=conf%>' + '/api/message/create',
+                method: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data : {                
+                    conversation_id: conid,
+                    user_id: '<%=userid%>',
+                    message_content: msg.value,
+                    user_fullName: '<%=fullName%>',
+                    receiver_id: chatgroupid,
+                    isSingleChat: 'false',
+                    },
+                headers: { 'Content-Type':'application/x-www-form-urlencoded',
+                'Authorization': '<%=token%>' }
+                });
+             msg.value='';
+        }
+
+        chatSock.on('message_user_'+'<%=userid%>', function (message) {
+            groupMessage(message);
+        });
+
+        $(".chat-box-group .send-box #input-msg").keyup(function (event) {
+            if (event.keyCode === 13 || event.which === 13) {
+                sendgroupMessage();
+            }
+
+        });
+
+        $(".chat-box-group .send-box #btnSend").click(function () {
+            sendgroupMessage();
+        });
+    }
+
+</script>

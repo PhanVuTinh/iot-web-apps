@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<% include partials/head.ejs %>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- Load ckediter -->
+	<script src="/plugins/ckeditor/ckeditor.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		var sock = "";
+		var socket = io.connect("<%=conf%>");
+		sock = socket;
+		var prodcate = '';
+		var region = '';
+		var age = '';
+		var species = '';
+		var ishompage_loaddata = false;
+
+	</script>
+</head>
+<body  class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<% include partials/nav.ejs %>
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>
+				Xem thông tin cá nhân
+				</h1>
+				<ol class="breadcrumb">
+					<li><a href="/quantrac/nguoiquantri/"><i class="fa fa-dashboard"></i> Trang chủ</a></li>
+					<li>
+
+					</li>
+				</ol>
+			</section>
+			<section class="content">
+				<!-- Start main activity -->
+				<div class="padding-top-bottom"></div>
+				<% include ../partialsManager/partialsDisplayError.ejs %>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="box box-primary">
+							<div class="box-header text-center with-border">
+								<h3 class="box-title">Xem thông tin cá nhân</h3>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+								<div class="form-group">
+                    <label class="control-label col-lg-4 col-md-4 col-sm-4" for="threshold_start">Họ tên:</label>
+                    <div class="col-lg-8 col-md-8 col-sm-8">
+                      <div class="row">
+                        <div class="col-md-8  col-xs-12">
+                        <div class="well" name="feedback_name" id="feedback_name"><%=userData.user_fullName%></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label col-lg-4 col-md-4 col-sm-4" for="threshold_start">Địa chỉ:</label>
+                    <div class="col-lg-8 col-md-8 col-sm-8">
+                      <div class="row">
+                        <div class="col-md-8  col-xs-12">
+                        <div class="well" name="feedback_name" id="feedback_name"><%=userData.user_address%></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label col-lg-4 col-md-4 col-sm-4" for="threshold_start">Ngày sinh:</label>
+                    <div class="col-lg-8 col-md-8 col-sm-8">
+                      <div class="row">
+                        <div class="col-md-8  col-xs-12">
+                        <div class="well" name="feedback_name" id="feedback_name">
+                          <%=moment(userData.user_birthday).format('DD/MM/YYYY')%>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label col-lg-4 col-md-4 col-sm-4" for="threshold_start">Điện thoại:</label>
+                    <div class="col-lg-8 col-md-8 col-sm-8">
+                      <div class="row">
+                        <div class="col-md-8  col-xs-12">
+                        <div class="well" name="feedback_name" id="feedback_name"><%=userData.user_phone%></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label col-lg-4 col-md-4 col-sm-4" for="threshold_start">Email:</label>
+                    <div class="col-lg-8 col-md-8 col-sm-8">
+                      <div class="row">
+                        <div class="col-md-8  col-xs-12">
+                        <div class="well" name="feedback_name" id="feedback_name"><%=userData.user_email%></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-lg-offset-5 col-lg-8 col-md-offset-5 col-md-8 col-sm-offset-5 col-sm-8">
+                      <div class="row">
+                        <div class="col-md-8  col-xs-12">
+                          <a href="/quantrac/nguoiquantri">
+                            <span>Quay lại trang chủ</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+			<script>
+    function displaySuccess(){
+      $('.displaySuccess').html('Đã cập nhật thành công');
+      $('.displaySuccess').css('display','block');
+      setTimeout(function () {
+        $('.displaySuccess').css('display','none');
+      }, 2000);
+    }
+  </script>
+			<!-- /.content-wrapper -->
+			<footer class="footer-title main-footer">
+				<strong>Copyright &copy; Bộ môn Công Nghệ Phần Mềm,<a target="_blank" href="http://cit.ctu.edu.vn/"> Khoa CNTT & TT</a>, <a target="_blank" href="http://ctu.edu.vn/">Trường ĐH Cần Thơ</a>.</strong>
+			</footer>
+			<% include partials/scripts.ejs %>
+			<!-- Control Sidebar -->
+			<% include partials/sidebar.ejs %>
+		</div>
+		<!-- ./wrapper -->
+	</body>
+	<!-- jQuery 2.2.3 -->
+
+	</html>

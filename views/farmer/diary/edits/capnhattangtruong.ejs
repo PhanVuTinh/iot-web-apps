@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ./../../partials/head.ejs %>
+    <!-- Ajax Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Jquery validation -->
+    <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" class="init">
+		var sock = "";
+		var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+        sock = socket;
+        var index = 0;
+        pagesize = 10;
+        var ishompage_loaddata = false;
+        $(document).ready(function(){
+            renderEditTrackerAugmentedById('<%=conf%>','<%=token%>','<%=trackeraugmentedId%>');
+       
+        });
+    </script>
+
+  </head>
+  <body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()" >
+    <div class="wrapper">
+      <!-- Chen tap tin sidebar.ejs va header.ejs -->
+      <% include ./../../partials/siderbar.ejs %>
+      <% include ./../../partials/header.ejs %>
+      <!-- Phan noi dung chinh cua trang -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+        <h4><b>CẬP NHẬT NHẬT KÝ NUÔI TÔM</b></h4>
+          <ol class="breadcrumb">
+            <li><a href="/quantrac/nongdan"><i class="fa fa-dashboard"></i> Nông dân</a></li>
+            <li><a href="/quantrac/nongdan/dotnuoi/danhsach"> Nhật ký nuôi tôm</a></li>
+            <li class="active">Nhật ký</li>
+          </ol>
+        
+        </section>
+        <!-- Content body -->
+        <section class="content">
+            <!-- Khu vuc hien thi loi -->
+            <div class="row">
+                <div class="col-md-12" id= "error">              
+                </div>
+            </div>
+            <!-- Modal cua notification -->
+            <% include ./../../partials/notifiModal.ejs %>
+            <div class="row">
+                <div class="col-md-5 col-sm-12">
+                    <div class="form-group">
+                        <a title = "Quay lại trang trước" href="/quantrac/nongdan/nhatki"><button class="btn btn-primary">Quay lại</button></a> 
+                    </div>
+                </div>
+              
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary ">
+                        <div class="box-header with-border text-center">
+                            <h3 class="box-title" ><b>CẬP NHẬT</h3><br>
+                            <h3 class="box-title" ><b>THEO DÕI TĂNG TRƯỞNG</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12" >
+                                    <form class="form-horizontal" id='frmupdatetracker' method="post" action="/quantrac/nongdan/nhatki/capnhattangtruong">
+                                        <!-- <input type="hidden" name="stocking_id" value="stocking_id">
+                                        <input type="hidden" name="pond_id" value="pond_id"> -->
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_date">Ngày:</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <!-- <input type="text" class="form-control" id = "trackeraugmented_date" name="trackeraugmented_date" /> -->
+                                                            <div class='input-group date col-md-12' id='datetimepicker3'>
+                                                                <input type='text' class="form-control" id="trackeraugmented_date" name="trackeraugmented_date" />
+                                                                <span class="input-group-addon">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                            </div>
+                                                            <script type="text/javascript">
+                                                                $(function () {
+                                                                    $('#datetimepicker3').datetimepicker({
+                                                                        format: 'YYYY-MM-DD',
+                                                                        locale: 'vi',
+                                                                        useCurrent: true,
+                                                                        calendarWeeks: true,
+                                                                        sideBySide: true,
+                                                                       
+                                                                    });
+                                                                });
+                                                            </script>   
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortrackeraugmented_date"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_number">Lần kiểm tra:</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <input type="text" style="display: none;" class="form-control" id="trackeraugmented_id" name="trackeraugmented_id"/>
+                                                            <input type="text" style="display: none;" class="form-control" id="pond_id" name="pond_id"/>
+                                                            <input type="text" style="display: none;" class="form-control" id="stocking_id" name="stocking_id"/>
+                                                            <input type="text" class="form-control" id = "trackeraugmented_number" name= "trackeraugmented_number" />
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortrackeraugmented_number"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_age">Số ngày tuổi (ngày):</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id = "trackeraugmented_age" name= "trackeraugmented_age" placeholder="Nhập tuổi tại thời điểm kiểm tra" />
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortrackeraugmented_age"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_densityAvg">Mật độ trung bình (con/m&sup2;):</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id = "trackeraugmented_densityAvg" name= "trackeraugmented_densityAvg" placeholder="Nhập mật độ trung bình" />
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortrackeraugmented_densityAvg"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_weightAvg">Khối lượng trung bình (g/con):</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id = "trackeraugmented_weightAvg" name= "trackeraugmented_weightAvg" placeholder="Nhập khối lượng trung bình" />
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortrackeraugmented_weightAvg"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_speedOfGrowth">Tốc độ tăng trưởng (&#37;):</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id = "trackeraugmented_speedOfGrowth" name= "trackeraugmented_speedOfGrowth" placeholder="Nhập tốc độ tăng trưởng" />
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortrackeraugmented_speedOfGrowth"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="tracker_augmented_survival">Tỉ lệ sống (&#37;):</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id = "tracker_augmented_survival" name= "tracker_augmented_survival" placeholder="Nhập tỷ lệ sống" />
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortracker_augmented_survival"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_biomass">Sinh khối (Kg):</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id = "trackeraugmented_biomass" name= "trackeraugmented_biomass" placeholder="Nhập sinh khối" />
+                                                            <span style="color:red;font-weight:bold;" class="input-group-addon">(*)</span>
+                                                        </div>
+                                                        <span id="errortrackeraugmented_biomass"></span>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4 col-md-4 col-sm-4" for="trackeraugmented_note">Ghi chú:</label>
+                                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 col-xs-12">
+                                                         <textarea id= "trackeraugmented_note" name = "trackeraugmented_note" class="form-control" placeholder="Nhập ghi chú"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group"> 
+                                            <div class="col-lg-offset-5 col-lg-8 col-md-offset-4 col-md-8 col-sm-offset-4 col-sm-8">
+                                                <input title = "Cập nhật chi tiết" type="submit" id ="btnThemTheoDoi" name="btnThemTheoDoi" value="Cập nhật" class="btn btn-primary" class="form-control" />
+                                                <span style="color:red;font-weight:bold;">&nbsp;(*)</span> là bắt buộc
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+        </section>   
+      <!-- /.content // -->
+      </div>
+      <!-- /.content-wrapper -->
+      <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+      <% include ./../../partials/footer.ejs %>
+      <% include ./../../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+  
+    <!-- Chen tap tin script.ejs -->
+    <% include ./../../partials/script.ejs %>
+  </body>
+</html>
+

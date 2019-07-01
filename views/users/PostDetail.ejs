@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include partials/head.ejs %>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Cac ham load du lieu duoc su dung -->
+<script type="text/javascript" src='/dist/js/loadFunction-Tuan.js'></script>
+  <script type="text/javascript" class="init">
+    var sock = "";
+    var socket = io.connect("<%=conf%>");
+    sock = socket;
+    var index = 1;
+    var pagesize = 10;
+    var ishompage_loaddata = false;
+    var totals = 0;
+    $(document).ready(function(){
+      getPostDetailforGuest('<%=users.post_id%>');
+      getCommentPostforPost(index-1,pagesize,'<%=users.post_id%>');
+    });
+  </script>
+  <style>
+      
+        #divBtnShare,#divBtnLogout {display:none};
+       
+    </style>
+</head>
+<body id="home" class="homepage" style="margin-top: 50px">
+    <% include partials/nav.ejs %> 
+    <section id="blog" >
+        <!-- <div class="container"> -->
+            <div class="row">
+             <div class="col-lg-1"></div>
+            <!-- Blog Post Content Column -->
+            <div class="col-lg-10 well">
+                <!-- Blog Post -->
+                <!-- Title -->
+                <h1><%=users.post_title%></h1>
+                <!-- Author -->
+                <p class="lead">
+                    Đăng bởi: <a href="#"><%=users.post_createBy%></a>
+                </p>
+                <hr>
+                <!-- Date/Time -->
+                <p><span class="glyphicon glyphicon-time"></span> Ngày đăng  
+                 <%= moment(users.post_createDate).format('hh:mm DD/MM/YYYY')%> </p>
+                <hr>
+                <!-- Preview Image -->
+                <img class="img-responsive" width="400" height="300" src="<%=users.post_smallPicture%>" alt="">
+               
+                <hr>
+                <!-- Post Content -->
+                <div id="hienthi"></div>
+                <hr>
+                <!-- QR Code -->
+            
+                <div id="wrap-qr">
+                    <%if (users.postcate_id === 27) { %>
+                        <img id="qrious" />
+                    <% } %>
+                  
+                
+                </div>
+                <br>
+                <!-- facebook share -->
+                <div id="divBtnLogin">
+                        <fb:share-button 
+                            scope="public_profile,email" 
+                            onlogin="checkLoginState();">
+                        </fb:share-button>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <!-- <div > -->
+                            <button id="divBtnShare" onclick="callBtnShare()" class="btn btn-primary">Share facebook </button>
+                        <!-- </div>
+                        <div > -->
+                            <button id="divBtnLogout" onclick="callBtnLogout()" class="btn btn-danger">Logout facebook</button>
+                        <!-- </div>
+                        <div > -->
+                            <button id="BtnLogin" onclick="callBtnLogin()" class="btn btn-primary">Share facebook</button>
+                        <!-- </div> -->
+                    </div>
+                   
+                    <h3 id="status"></h3>
+                <script src="/qrious/qrious.js"></script>
+                <script>
+                    (function(){
+                       
+                        var strings = `TRANG TRAI TOM PHU THUAN\n\nChung nhan VietGAP san pham an toan\nXa Phu Thuan, huyen Thoai Son, An Giang${'\n<%=users.post_title%>'+'\n<%= moment(users.post_createDate).format("hh:mm DD/MM/YYYY")%>'}
+                        `;
+                        var qr = window.qr = new QRious({
+                        element: document.getElementById('qrious'),
+                        size: 300,
+                        value: strings,
+                       //background: '#AB7D00',
+                       // backgroundAlpha: 0.8,
+                       // foreground: 'blue',
+                       // foregroundAlpha: 0.8,
+                        level: 'H',
+                       // padding: 25,
+                        });
+                        qr.toDataURL();
+                    })();
+
+                   
+                </script>
+                <script src="/fbjs/app.js"></script>
+                <hr>
+                <!-- Blog Comments -->
+                <!-- Comments Form -->
+                <div class="well">
+                    <h4>Gửi bình luận:</h4>
+                    <form role="cmtform" method="post" action="/trangchu/thembinhluan/<%=users.post_id %>">
+                    <div class="form-group">
+                        <input type="hidden" name="post_id" value="<%=users.post_id %>">
+                        <input class="form-control" type="text" name="comment_commentByName" placeholder="Nhập tên của bạn">
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="comment_commentByEmail" placeholder="Nhập email của bạn">
+                    </div>
+                        <div class="form-group">
+                            <textarea class="form-control" rows="3" name="comment_content" placeholder="Viết bình luận"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+                    </form>
+                </div>
+
+                <hr>
+                <!-- Posted Comments -->
+                <!-- Comment -->
+                <div id="cmt">
+                    <div id="demo" class="collapse">
+                Lorem ipsum dolor text....
+                </div>
+                </div>
+                <!-- Comment -->
+            </div>
+        </div>
+        <!-- /.row -->
+        <hr>
+        <!-- Footer -->
+    <!-- </div> -->
+    <!-- /.container -->
+    </section>
+
+<% include partials/footer.ejs %>
+<% include partials/scripts.ejs %>
+<!-- Control Sidebar -->
+<% include partials/sidebar.ejs %>
+</div>
+<!-- ./wrapper -->
+</body>	
+<!-- jQuery 2.2.3 -->
+
+</html>

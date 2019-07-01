@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+        <!-- Ajax Jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <!-- Jquery validation -->
+        <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" class="init">
+            var sock = "";
+            var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+            sock = socket;
+            var index = 0;
+            pagesize = 10;         
+            var selectpond_3 = ""; var selectstocking_3 = ""; var selectseed_id = "";
+            var ishompage_loaddata = false;
+            $(document).ready(function () {                
+                getPondbyUserId('<%=conf%>','<%=token%>','<%=userId%>',function(data){
+                    if(data != null){
+                      data.forEach(function(items){
+                        selectpond_3 += "<option value='"+items.pond_id+"'>" + items.pond_description+"</option>";
+                      });
+                      $("#pond_id_3").html(selectpond_3);
+                      $("#pond_id_3").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }
+                }); 
+                getStockingbyUserId('<%=conf%>','<%=token%>','<%=userId%>',function(data){                
+                    if(data != null){
+                      data.forEach(function(items){                          
+                        selectstocking_3 += "<option value='"+items.stocking_id+"'>" +"Vụ nuôi số: " + items.stocking_id + "</option>";
+                      });
+                      $("#stocking_id_3").html(selectstocking_3);
+                      $("#stocking_id_3").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }                  
+                });
+                getSeed('<%=conf%>','<%=token%>','<%=userId%>',function(data){                    
+                    if(data != null){
+                      data.forEach(function(items){
+                        selectseed_id += "<option value='"+items.seed_id+"'>" +"Nguồn: " + items.seed_source + " | Giá giống: " + items.seed_price + " | Số lô giống: " + items.seed_numberOfLot + " | Chất lượng giống: " + items.seedquality_id +  "</option>";
+                      });
+                      $("#seed_id").html(selectseed_id);
+                      $("#seed_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }
+                });  
+            });
+
+        </script>
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()">
+    <div class="wrapper">
+        <!-- Chen tap tin sidebar.ejs va header.ejs -->
+        <% include ../partials/siderbar.ejs %>
+            <% include ../partials/header.ejs %>
+                <!-- Phan noi dung chinh cua trang -->
+                <div class="content-wrapper">
+                    <!-- Content Header (Page header) -->
+                    <section class="content-header">
+                        <h4>
+                            <b>THÊM NHẬT KÝ NUÔI TÔM</b>
+                        </h4>
+                        <ol class="breadcrumb">
+                            <li>
+                                <a href="/quantrac/nongdan">
+                                    <i class="fa fa-dashboard"></i> Nông dân</a>
+                            </li>
+                            <li>
+                                <a href="/quantrac/nongdan/nhatki"> Nhật ký nuôi tôm</a>
+                            </li>
+
+                            <li><a href="/quantrac/nongdan/nhatki/themcbithaao"> Thêm thả ao</a></li>
+                        </ol>
+
+                    </section>
+                    <!-- Content body -->
+                    <section class="content">
+                        <!-- Khu vuc hien thi loi -->
+                        <div class="row">
+                            <div class="col-md-12" id="error">
+                            </div>
+                        </div>
+                        <!-- Modal cua notification -->
+                        <% include ../partials/notifiModal.ejs %>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3">
+                                    <div class="form-group">
+                                        <!-- <a title = "Quay lại trang trước" href="/"><button class="btn btn-primary">Quay lại</button></a>  -->
+                                        <!-- <a title ="" href="/quantrac/nongdan/nhatki/them"><button class="btn btn-primary ">Thêm Nhật Kí Nuôi</button></a> -->
+                                    </div>
+                                </div>
+                                <div class="col-md-offset-6 col-md-3 col-sm-offset-6 col-sm-3">
+                                    <div class="form-group">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-primary ">                                        
+                                        <div class="box-body">                                                                                                            
+                                            <!-- form tha ao -->
+                                            <form action="/quantrac/nongdan/nhatki/themthaao" method="post" id="frmStockPond">
+                                                <div class="form-group row">
+                                                    <h4 class="text-center">
+                                                        <b>THẢ AO</h4>
+                                                    <br>
+                                                    <div class="form-group">
+                                                        <label for="pond_id_3" class="col-sm-1 col-form-label ">Ao nuôi:</label>
+                                                        <div class="col-sm-3">
+                                                            <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn ao" id="pond_id_3" name="pond_id_3">
+                                                            </select>
+                                                            <span id="errorpond_id_3" class="error"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="stocking_id_3" class="col-sm-1 col-form-label ">Vụ nuôi:</label>
+                                                        <div class="col-sm-3">
+                                                            <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn vụ" id="stocking_id_3" name="stocking_id_3">
+                                                            </select>
+                                                            <span id="errorstocking_id_3" class="error"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>                                                
+                                                <div class="form-group row">                                                   
+                                                    <label for="seed_id" class="col-sm-1 col-form-label ">Chọn giống:</label>
+                                                    <div class="col-sm-3">
+                                                        <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn giống" id="seed_id" name="seed_id">
+                                                        </select>
+                                                        <span id="errorseed_id" class="error"></span>
+                                                    </div>                                                    
+                                                </div>                                                
+                                                <div class="form-group row">
+                                                    <label for="stockpond_date" class="col-sm-2 col-form-label col-sm-offset-3">Ngày thả giống: </label>
+                                                    <div class="col-sm-4">
+                                                        <div class='input-group date' id='process_day6' data-provide="datepicker">
+                                                            <input type='text' data-date-format='yyyy-mm-dd' class="form-control" name="stockpond_date" id="stockpond_date" />
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                            <span id="errorstockpond_date" class="error"></span>
+                                                        </div>                                                                                 
+                                                        <script type="text/javascript">
+                                                            $(function () {
+                                                                $('#process_day6').datepicker({
+                                                                    format: 'yyyy/mm/dd',
+                                                                });                                                                                         
+                                                            }); 
+                                                        </script>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_PCR" class="col-sm-2 col-form-label col-sm-offset-3">Tình trạng PCR:</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_PCR" name="stockpond_PCR" placeholder="1: Có | 0: Không">
+                                                        <span id="errorstockpond_PCR" class="error"></span>                                                     
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_PCRresult" class="col-sm-2 col-form-label col-sm-offset-3">Kết quả kiểm PCR:</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_PCRresult" name="stockpond_PCRresult" placeholder="Kết quả kiểm PCR">
+                                                        <span id="errorstockpond_PCRresult" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_density" class="col-sm-2 col-form-label col-sm-offset-3">Mật độ:</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_density" name="stockpond_density" placeholder="Mật độ thả nuôi">
+                                                        <span id="errorstockpond_density" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_quantityStock" class="col-sm-2 col-form-label col-sm-offset-3">Số lượng giống thả:</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_quantityStock" name="stockpond_quantityStock" placeholder="Số lượng giống thả">
+                                                        <span id="errorstockpond_quantityStock" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_statusOfSeed" class="col-sm-2 col-form-label col-sm-offset-3">Xử lí con giống trước khi nuôi:</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_statusOfSeed" name="stockpond_statusOfSeed" placeholder="1: Có | 0: Chưa xử lí">
+                                                        <span id="errorstockpond_statusOfSeed" class="error"></span>                                                       
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_method" class="col-sm-2 col-form-label col-sm-offset-3">Cách xử lí</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_method" name="stockpond_method" placeholder="Cách xử lí">
+                                                        <span id="errorstockpond_method" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_depth" class="col-sm-2 col-form-label col-sm-offset-3">Độ sâu (cm)</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_depth" name="stockpond_depth" placeholder="Độ sâu">
+                                                        <span id="errorstockpond_depth" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_clarity" class="col-sm-2 col-form-label col-sm-offset-3">Độ trong (cm)</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_clarity" name="stockpond_clarity" placeholder="Độ trong">
+                                                        <span id="errorstockpond_clarity" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_salinity" class="col-sm-2 col-form-label col-sm-offset-3">Độ mặn (‰)</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_salinity" name="stockpond_salinity" placeholder="Độ mặn">
+                                                        <span id="errorstockpond_salinity" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_DO" class="col-sm-2 col-form-label col-sm-offset-3">Chỉ số DO (mg/l)</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_DO" name="stockpond_DO" placeholder="Chỉ số DO">
+                                                        <span id="errorstockpond_DO" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_PHwater" class="col-sm-2 col-form-label col-sm-offset-3">Độ PH nước </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_PHwater" name="stockpond_PHwater" placeholder="Độ pH nước">
+                                                        <span id="errorstockpond_PHwater" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_tempAir" class="col-sm-2 col-form-label col-sm-offset-3">Nhiệt độ không khí </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_tempAir" name="stockpond_tempAir" placeholder="Nhiệt độ không khí">
+                                                        <span id="errorstockpond_tempAir" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_tempWater" class="col-sm-2 col-form-label col-sm-offset-3">Nhiệt độ nước </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_tempWater" name="stockpond_tempWater" placeholder="Nhiệt độ nước">
+                                                        <span id="errorstockpond_tempWater" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_state" class="col-sm-2 col-form-label col-sm-offset-3">Trạng thái thả nuôi </label>
+                                                    <div class="col-sm-4">
+                                                            <input type="text" class="form-control" id="stockpond_state" name="stockpond_state" placeholder="1: Đã thả | 0: Chưa">
+                                                            <span id="errorstockpond_state" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="stockpond_age" class="col-sm-2 col-form-label col-sm-offset-3">Tuổi tôm thả nuôi </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" id="stockpond_age" name="stockpond_age" placeholder="Tuổi tôm thả nuôi">
+                                                        <span id="errorstockpond_age" class="error"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-4 col-sm-offset-5">
+                                                        <input type="submit" class="btn btn-primary" name="btnThemThaGiong" value="Thêm"/>
+                                                        <button type="reset" class="btn btn-primary col-sm-offset-1">Đặt lại</button>
+                                                    </div>
+                                                </div>
+                                            </form>                                         
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </section>
+                    <!-- /.content // -->
+                </div>
+                <!-- /.content-wrapper -->
+                <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+                <% include ../partials/footer.ejs %>
+                    <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Dinh nghia bien -->
+
+    <!-- Chen tap tin script.ejs -->
+    <% include ../partials/script.ejs %>
+</body>
+
+</html>

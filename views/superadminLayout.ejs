@@ -1,0 +1,178 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <% include superadmin/partials/head.ejs %>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body class=" hold-transition skin-blue sidebar-mini">
+  <div class="wrapper">
+    <% include superadmin/partials/nav.ejs %>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+      <!-- Content Header (Page header) -->
+      <section class="content-header">
+        <h1>
+          Bảng điều khiển
+        </h1>
+        <ol class="breadcrumb">
+          <li><a href="/quantrac"><i class="fa fa-dashboard"></i>Trang chủ</a></li>
+        </ol>
+      </section>
+
+      <!-- Main content -->
+      <section class="content">
+        <div class="padding-top-bottom">
+          <div class="row">
+           <div class="col-lg-12">
+            <div class="box box-primary">
+              <div class="box-header text-center with-border">
+                <h3 class="box-title">Danh sách người dùng</h3>
+              </div>
+              <!-- /.box-header -->
+              <div class="box-body">
+              <div style="text-align:right">
+              <ul class="pagination pagi-custom" id="pagi" style"">
+                    <!-- Phân trang ở đây -->
+              </ul>
+              </div>
+ 
+              <div id ="maincontent">
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    <footer class="footer-title main-footer">
+      <div class="pull-right hidden-xs">
+        <b>Phiên bản</b> 1.0
+      </div>
+      <strong>Copyright &copy; Bộ môn Công Nghệ Phần Mềm,<a target="_blank" href="http://cit.ctu.edu.vn/"> Khoa CNTT & TT</a>, <a target="_blank" href="http://ctu.edu.vn/">Trường ĐH Cần Thơ</a>.</strong>
+    </footer>
+    <% include superadmin/partials/scripts.ejs %>
+    <!-- Control Sidebar -->
+    <% include superadmin/partials/sidebar.ejs %>
+  </div>
+  <!-- ./wrapper -->
+</body>
+<script>
+  var getrolename = function(id){
+    switch(id){
+      case 1:{
+        return "ADMIN";
+      }
+      case 2:{
+        return "GUEST";
+      }
+      case 3:{
+        return "FARMER";
+      }
+      case 4:{
+        return "MANAGER";
+      }
+      case 5:{
+        return "EXPERT";
+      }
+      case 6:{
+        return "SUPERADMIN";
+      }
+      default:{
+        return "OTHER";
+      }
+    }
+  }  
+  function loaduser(page) {
+    var html_pagi = "";
+
+    getUserPagination('<%=conf%>','<%=token%>','<%=secu%>',page, function(data_user){
+      var html_user = "";
+      data_user.Items.forEach(function(user){
+        html_user += "<li style='list-style-type:none;' class='treeview'>"
+         +"<span style='font-weight:650; font-size:18px'>" + user.user_fullName + " - " + user.user_userName +" - "+ getrolename(user.role_id)+ "</span>"
+         +"</span>"
+         +"<ul style='list-style-type:none;' class='treeview-menu' id='user" +user.user_id + "'>"
+         +"</ul>"
+         +"</li>";
+        getUserFunctionGroup('<%=conf%>','<%=token%>','<%=secu%>',user.user_id,function(data_user_function_group){
+          console.log("abc"+data_user_function_group.length);
+          if(data_user_function_group.length>0){
+            console.log("a");
+            var html_user_function_group = "";
+            data_user_function_group.forEach(function(user_function_group){
+              html_user_function_group += "<li class='treeview'>"
+              +"<input type='checkbox' ";
+              if(user_function_group.is_active) html_user_function_group += "checked";
+              html_user_function_group +=" onclick='updateuserfunctiongroup(this,"+user.user_id+","+user_function_group.function_group_id+");'>"+
+              "<span style=' font-size:16px'>" + user_function_group.description + "</span>"
+              +"</span>"
+              +"<ul style='list-style-type:none;' class='treeview-menu' id='fg" +user_function_group.function_group_tag + "'>"
+              +"</ul>"
+              +"</li>";
+              getUserFunction('<%=conf%>','<%=token%>','<%=secu%>',user.user_id,user_function_group.function_group_tag, function(data_user_function){
+                var html_user_fucntion = "";
+                data_user_function.forEach(function (user_function){
+                  html_user_fucntion += "<li><input type='checkbox' ";
+                  if(user_function.isactive) html_user_fucntion += "checked";
+                  html_user_fucntion += " onclick='updateuserfunction(this,"+user.user_id+","+user_function.function_id+");'>"+
+                  "<span style=' font-size:14px'>"+user_function.description
+                  + "</span></li>";
+                });
+                $("#fg"+user_function_group.function_group_tag).html(html_user_fucntion);
+              });
+            });
+            $("#user"+user.user_id).html(html_user_function_group);
+          }
+          else{
+            console.log("B");
+            html_user += "<a href>Tạo chức năng cho người dùng này</a>";
+          }
+        });
+         $("#maincontent").html(html_user);
+      });
+      for(i = 0; i< data_user.TotalPages; i++){
+				html_pagi += "<li ><a href='#' onclick='loaduser("+i+")' >"+(i+1)+"</a></li>";
+			}
+      $("#pagi").html(html_pagi);
+    });
+}
+loaduser(0);
+
+function updateuserfunctiongroup(checkbox, userID, functiongroupID) {
+  var is_active = 0;
+  if(checkbox.checked) is_active = 1;
+  else is_active = 0;
+  jQuery.ajax({
+        url: '<%=conf%>' + '/api/userfunctiongroup/update?user_id=' + userID + '&function_group_id=' + functiongroupID + '&is_active='+is_active,
+        type: 'PUT',
+        headers: { 'Authorization': '<%=secu%>' +'<%=token%>' },
+        contentType: 'application/json; charset=utf-8',
+        success: function(response){
+
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            displayError("Lỗi!");
+        },
+    });
+}
+
+function updateuserfunction(checkbox, userID, functiongroupID) {
+  var is_active = 0;
+  if(checkbox.checked) is_active = 1;
+  else is_active = 0;
+  jQuery.ajax({
+        url: '<%=conf%>' + '/api/userfunction/update?user_id=' + userID + '&function_id=' + functiongroupID + '&isactive='+is_active,
+        type: 'PUT',
+        headers: { 'Authorization':'<%=secu%>' +'<%=token%>' },
+        contentType: 'application/json; charset=utf-8',
+        error: function(jqXHR, textStatus, errorThrown) {
+            displayError("Lỗi!");
+        },
+    });
+}
+</script>
+</html>
+

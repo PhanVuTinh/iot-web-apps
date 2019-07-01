@@ -1,0 +1,68 @@
+<!-- Control Sidebar -->
+<aside class="control-sidebar control-sidebar-dark">
+  <section class="sidebar">
+    <!-- Sidebar user panel -->
+    <!-- sidebar menu: : style can be found in sidebar.less -->
+    <div class='row'>
+      <div class='col-md-12'>
+        <ul class="sidebar-menu">
+          <li style='font-size:13px;' class="header text-center">TÙY CHỌN CHO HỆ THỐNG</li>
+          <li class="treeview">
+            <a href="">
+              <i class="fa fa-circle-o"></i>
+              <span>Tắt thông báo trạm</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <div id='select-tattram'>
+
+              </div>
+            </ul>
+          </li>
+          <li class="treeview">
+            <a href="">
+              <i class="fa fa-circle-o"></i>
+              <span>Chọn trạm mặc định</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <div id='select-xemdulieu'>
+
+              </div>
+            </ul>
+          </li>
+          <li style='font-size:13px;' class="header text-center">DANH SÁCH BẠN</li>
+          <li class="treeview" style='max-height:300px; overflow:auto' id='friendList'>
+          <%include ../chat/loadfriendlist.ejs%>
+          </li>
+          <%include ../chat/chatcomp.ejs%>
+          <li style='font-size:13px;' class="header text-center">DANH SÁCH NHÓM</li>
+          <li class="treeview" style='max-height:300px; overflow:auto' id='chatGroupList'>
+          <%include ../chat/loadchatgroup.ejs%>
+          </li>
+          <%include ../chat/chatgroupcomp.ejs%>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div style="display:none;" id="thongbaokhoatram" class="alert alert-success fade in">
+          <a href="#" class="close" data-dismiss="alert">&times;</a>
+          <strong id="thongbao"></strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</aside>
+<!-- /.control-sidebar -->
+<!-- Add the sidebar's background. This div must be placed
+     immediately after the control sidebar -->
+<div class="control-sidebar-bg"></div>
+<script>
+  $("body").append($("<div class='chat' >"));
+</script>

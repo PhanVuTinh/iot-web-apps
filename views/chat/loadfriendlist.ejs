@@ -1,0 +1,17 @@
+<script type="text/javascript" src='/dist/js/function.js'></script>
+
+<script>
+   getfriendlist('<%=conf%>','<%=token%>','<%=secu%>','<%=userid%>',function(data_friendlist){
+        var container = $("#friendList");
+        data_friendlist.forEach(function(item){
+            container.append(
+                $("<a >").text(item.user_fullName).click(function(){
+                    //todo open message user_id
+                    newConversation(item.user_id,item.user_fullName,item.conversation_id);
+                    console.log(item.conversation_id);
+                })
+            );
+        });
+        console.log("Alo 1234133q4 " +typeof socket);
+    });
+</script>

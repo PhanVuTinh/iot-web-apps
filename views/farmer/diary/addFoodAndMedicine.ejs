@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Chen tap tin head.ejs -->
+    <% include ../partials/head.ejs %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+        <!-- Ajax Jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <!-- Jquery validation -->
+        <script src="/plugins/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" class="init">
+            var sock = "";
+            var socket = io.connect("<%=conf%>"); //<%=conf%> chua duong dan socket
+            sock = socket;
+            var index = 0;
+            pagesize = 10;
+            var selectpond = ""; var selectstocking = ""; var selectyear = "";
+            var selectland = "";            
+            var ishompage_loaddata = false;
+            $(document).ready(function () {
+                // getListMaterialTypeFood('<%=conf%>','<%=token%>','<%=userId%>',index,pagesize)
+                getPondbyUserId('<%=conf%>','<%=token%>','<%=userId%>',function(data){
+                    if(data != null){
+                      data.forEach(function(items){
+                        selectpond += "<option value='"+items.pond_id+"'>" + items.pond_description+"</option>";
+                      });
+                      $("#pond_id").html(selectpond);
+                      $("#pond_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }
+                }); 
+                getStockingbyUserId('<%=conf%>','<%=token%>','<%=userId%>',function(data){                
+                    if(data != null){
+                      data.forEach(function(items){                          
+                        selectstocking += "<option value='"+items.stocking_id+"'>" + items.stocking_note+"</option>";
+                      });
+                      $("#stocking_id").html(selectstocking);
+                      $("#stocking_id").selectpicker('refresh'); //load dữ liệu bootstrap select
+                    }                  
+                });                     
+            });
+        </script>
+</head>
+<body  class="hold-transition skin-blue sidebar-mini" onload="showListBlockNotifi()">
+    <div class="wrapper">
+        <!-- Chen tap tin sidebar.ejs va header.ejs -->
+        <% include ../partials/siderbar.ejs %>
+        <% include ../partials/header.ejs %>
+        <div class="content-wrapper">             
+            <section class="content-header">
+                <h4>
+                    <b>THÊM NHẬT KÝ NUÔI TÔM</b>
+                </h4>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="/quantrac/nongdan">
+                            <i class="fa fa-dashboard"></i> Nông dân</a>
+                    </li>
+                    <li>
+                        <a href="/quantrac/nongdan/nhatki"> Nhật ký nuôi tôm</a>
+                     </li>
+        
+                     <li><a href="/quantrac/nongdan/nhatki/themanthuoc"> Thêm thức ăn & thuốc</a></li>
+                </ol>
+             </section>
+             <!-- Content body -->
+             <section class="content">
+                <!-- Khu vuc hien thi loi -->
+                <div class="row">
+                    <div class="col-md-12" id="error">
+                    </div>
+                </div>
+                <!-- Modal cua notification -->
+                <% include ../partials/notifiModal.ejs %>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="box box-primary">
+                            <div class="box-body">                                
+                                <form action="" method="post">
+                                    <table class="table table-bordered">                                   
+                                        <div class="form-group row">
+                                            <h3 class="text-center">
+                                                <b>CHUẨN BỊ THỨC ĂN VÀ THUỐC</b>
+                                            </h3>
+                                            <br>
+                                            <label for="pond_id" class="col-sm-1 col-form-label ">Ao nuôi:</label>
+                                            <div class="col-sm-3">
+                                                <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn ao" id="pond_id" name="pond_id">
+                                                </select>
+                                                <span id="errorpond_id" class="error"></span>
+                                            </div>
+                                            <label for="stocking_id" class="col-sm-1 col-form-label ">Vụ nuôi:</label>
+                                            <div class="col-sm-3">
+                                                <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn vụ" id="stocking_id" name="stocking_id">
+                                                </select>
+                                                <span id="errorstocking_id" class="error"></span>
+                                            </div>                                                
+                                        </div>
+                                        <h4 class="text-center"><b>QUẢN LÍ THỨC ĂN</b></h4>
+                                        <h5 class="text-center"><b>THỨC ĂN/BỮA (kg)</b></h5>
+                                        <tbody>
+                                            <tr class="info">                                                
+                                                <td class="col-xs-2 text-center">Lần 1</td>
+                                                <td class="col-xs-2 text-center">Lần 2</td>
+                                                <td class="col-xs-2 text-center">Lần 3</td>
+                                                <td class="col-xs-2 text-center">Lần 4</td>
+                                                <td class="col-xs-2 text-center">Lần 5</td>
+                                            </tr>
+                                            <tr>                                                
+                                                <td><input class="col-xs-12" type="text"></td>
+                                                <td><input class="col-xs-12" type="text"></td>
+                                                <td><input class="col-xs-12" type="text"></td>
+                                                <td><input class="col-xs-12" type="text"></td>
+                                                <td><input class="col-xs-12" type="text"></td>
+                                            </tr>
+                                        </tbody>                                    
+                                    </table>
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-2 col-form-label ">Lượng thức ăn/ngày(kg):</label>                                                                                   
+                                        <div class="col-sm-2">
+                                            <input type="text"> 
+                                        </div>
+                                        <label for="" class="col-sm-2 col-form-label ">Tổng lượng thức ăn tích lũy(kg):</label>                                                                                   
+                                        <div class="col-sm-2">
+                                            <input type="text"> 
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <h4 class="text-center"><b>SỬ DỤNG THUỐC</b></h4>
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-1 col-form-label ">Loại:</label>
+                                        <div class="col-sm-2">
+                                            <select multiple data-max-options="1" data-none-results-text="Không tìm thấy từ khóa tìm kiếm" data-live-search="true" class="form-control" title="Chọn loại" id="" name="">
+                                                
+                                            </select>                                            
+                                        </div>
+                                        <label for="" class="col-sm-1 col-form-label ">Liều lượng:</label>
+                                        <div class="col-sm-2">
+                                            <input type="text">
+                                        </div>
+                                        <label for="" class="col-sm-1 col-form-label ">Thời gian đào thải thuốc:</label>
+                                        <div class="col-sm-1">
+                                            <input type="text">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-sm-4 col-sm-offset-5">                                            
+                                            <input type="submit" class="btn btn-primary" name="btnThem" value="Thêm"/> 
+                                            <button type="reset" class="btn btn-primary col-sm-offset-1">Đặt lại</button>
+                                        </div>
+                                    </div>
+                                </form>                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </section>
+        </div>
+        <!-- Chen tap tin footer.ejs va control_sidebar.ejs -->
+        <% include ../partials/footer.ejs %>
+        <% include ../partials/control_sidebar.ejs %>
+    </div>
+    <% include ../partials/script.ejs %>
+</body>
+</html>
